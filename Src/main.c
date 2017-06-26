@@ -39,6 +39,25 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 
+#include "ili9488.h"
+#include "stlogo.h"
+#include "lcd.h"
+
+
+extern FontDef_t Font_7x10;
+extern FontDef_t Font_11x18;
+extern FontDef_t Font_16x26;
+
+  /* Pin definitions */
+#define LCD_RST_PORT      GPIOC
+#define LCD_RST_PIN       GPIO_PIN_6
+#define LCD_RST_CLK_ENABLE()           __HAL_RCC_GPIOC_CLK_ENABLE()
+#define LCD_RST_CLK_DISABLE()          __HAL_RCC_GPIOC_CLK_DISABLE()
+
+#define LCD_RST_SET			HAL_GPIO_WritePin(LCD_RST_PORT, LCD_RST_PIN, GPIO_PIN_SET)
+#define LCD_RST_RESET			HAL_GPIO_WritePin(LCD_RST_PORT, LCD_RST_PIN, GPIO_PIN_RESET)
+
+
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -64,7 +83,14 @@ static void MX_SPI1_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
+int fputc(int ch, FILE *f)
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the USART1 and Loop until the end of transmission */
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
 
+  return ch;
+}
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -73,7 +99,7 @@ static void MX_SPI1_Init(void);
 
 int main(void)
 {
-
+  uint8_t x=0;
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -99,8 +125,88 @@ int main(void)
   MX_FMC_Init();
   MX_USART1_UART_Init();
   MX_SPI1_Init();
+  
+  
+    	/* Force reset */
+	LCD_RST_RESET;
+	LCD_Delay(20000);
+	LCD_RST_SET;
+
+	/* Delay for RST response */
+	LCD_Delay(20000);
+
+	/* Software reset */
+	LCD_WR_REG(SOFT_RESET);
+	LCD_Delay(50000);
+  
+        LCD_Init();	         
 
   /* USER CODE BEGIN 2 */
+#if 0
+//  ILI9488_Init();
+
+  ILI9488_Puts(0, 0, "Honeywell Connected Air Stat", &Font_16x26, 0x000000, 0xFFFFFF);
+  ILI9488_Puts(160, 240, "Hello 9488", &Font_11x18, 0x000000, 0xFFFFFF);
+  ILI9488_Puts(0, 400, "320RGB x 480 Resolution and 16.7M-color", &Font_7x10, 0x000000, 0xFFFFFF);
+  ILI9488_Puts(0, 60, "Honeywell", &Font_16x26, 0xFF0000, 0xFFFFFF);
+  ILI9488_Puts(0, 90, "Honeywell", &Font_16x26, 0x00FF00, 0x0007FF);
+  ILI9488_Puts(0, 120, "Honeywell", &Font_16x26, 0x0000FF, 0x000000);
+
+//  ILI9488_DrawBitmap(0, 0, stlogo);
+#else
+           
+    POINT_COLOR=RED; 
+    printf("ILI9488 3.5-Inch CGD Test begin now...\r\n");
+    while(1)
+    {
+      		POINT_COLOR=BLUE;	
+#if 0              
+                LCD_Set_Window(0,0, 300, 300);
+                LCD_WR_REG(0x2C);
+                uint16_t k;
+                for(k=0; k<90000; k++)
+                {
+                  LCD_WR_DATA(0x00);
+                  LCD_WR_DATA(0x1F);
+                }
+#endif
+                //LCD_Fill(20,40, 120, 140, BLUE);
+ //               LCD_Draw_Circle(160,240,50);
+#if 0     
+                LCD_Clear(RED);
+ 		LCD_ShowString(10,40,300,32,32,"STM32F429I EVAL Board"); 	
+		LCD_ShowString(10,80,300,24,24,"TFT-LCD TEST");
+		LCD_ShowString(10,110,300,16,16,"Simon Gu");
+		LCD_ShowString(10,150,300,12,12,"2017-6-26");
+#endif          
+                HAL_Delay(1000);
+#if 1
+              switch(x)
+	       {
+			case 0:LCD_Clear(WHITE);break;
+			case 1:LCD_Clear(BLACK);break;
+			case 2:LCD_Clear(BLUE);break;
+			case 3:LCD_Clear(RED);break;
+			case 4:LCD_Clear(MAGENTA);break;
+			case 5:LCD_Clear(GREEN);break;
+			case 6:LCD_Clear(CYAN);break; 
+			case 7:LCD_Clear(YELLOW);break;
+			case 8:LCD_Clear(BRRED);break;
+			case 9:LCD_Clear(GRAY);break;
+			case 10:LCD_Clear(LGRAY);break;
+			case 11:LCD_Clear(BROWN);break;
+		}
+      					 
+		x++;
+		if(x==12)x=0;
+                LCD_ShowString(10,40,300,32,32,"STM32F429I EVAL Board"); 	
+		LCD_ShowString(10,80,300,24,24,"TFT-LCD TEST");
+		LCD_ShowString(10,110,300,16,16,"Simon Gu");
+		LCD_ShowString(10,150,300,12,12,"2017-6-26");
+#endif	
+     }
+ #endif
+  
 
   /* USER CODE END 2 */
 
@@ -250,18 +356,18 @@ static void MX_FMC_Init(void)
   /* Timing */
   Timing.AddressSetupTime = 15;
   Timing.AddressHoldTime = 15;
-  Timing.DataSetupTime = 120;
+  Timing.DataSetupTime = 15;
   Timing.BusTurnAroundDuration = 15;
   Timing.CLKDivision = 16;
-  Timing.DataLatency = 17;
+  Timing.DataLatency = 3; //was 17;
   Timing.AccessMode = FMC_ACCESS_MODE_A;
   /* ExtTiming */
   ExtTiming.AddressSetupTime = 15;
   ExtTiming.AddressHoldTime = 15;
-  ExtTiming.DataSetupTime = 120;
+  ExtTiming.DataSetupTime = 15;
   ExtTiming.BusTurnAroundDuration = 15;
   ExtTiming.CLKDivision = 16;
-  ExtTiming.DataLatency = 17;
+  ExtTiming.DataLatency = 3; //was 17;
   ExtTiming.AccessMode = FMC_ACCESS_MODE_A;
 
   if (HAL_SRAM_Init(&hsram1, &Timing, &ExtTiming) != HAL_OK)
@@ -275,12 +381,22 @@ static void MX_FMC_Init(void)
 */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef  GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+  
+  
+    /* Configure the GPIO pin */
+  GPIO_InitStruct.Pin = LCD_RST_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+
+  HAL_GPIO_Init(LCD_RST_PORT, &GPIO_InitStruct);
 
 }
 
