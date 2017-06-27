@@ -39,14 +39,14 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 
-#include "ili9488.h"
-#include "stlogo.h"
+//#include "ili9488.h"
+#include "st_logo1.h"
 #include "lcd.h"
 
 
-extern FontDef_t Font_7x10;
-extern FontDef_t Font_11x18;
-extern FontDef_t Font_16x26;
+//extern FontDef_t Font_7x10;
+//extern FontDef_t Font_11x18;
+//extern FontDef_t Font_16x26;
 
   /* Pin definitions */
 #define LCD_RST_PORT      GPIOC
@@ -99,7 +99,8 @@ int fputc(int ch, FILE *f)
 
 int main(void)
 {
-  uint8_t x=0;
+  uint8_t x=0; 
+  uint8_t k;
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -142,51 +143,21 @@ int main(void)
         LCD_Init();	         
 
   /* USER CODE BEGIN 2 */
-#if 0
-//  ILI9488_Init();
 
-  ILI9488_Puts(0, 0, "Honeywell Connected Air Stat", &Font_16x26, 0x000000, 0xFFFFFF);
-  ILI9488_Puts(160, 240, "Hello 9488", &Font_11x18, 0x000000, 0xFFFFFF);
-  ILI9488_Puts(0, 400, "320RGB x 480 Resolution and 16.7M-color", &Font_7x10, 0x000000, 0xFFFFFF);
-  ILI9488_Puts(0, 60, "Honeywell", &Font_16x26, 0xFF0000, 0xFFFFFF);
-  ILI9488_Puts(0, 90, "Honeywell", &Font_16x26, 0x00FF00, 0x0007FF);
-  ILI9488_Puts(0, 120, "Honeywell", &Font_16x26, 0x0000FF, 0x000000);
-
-//  ILI9488_DrawBitmap(0, 0, stlogo);
-#else
-           
-    POINT_COLOR=RED; 
+         
     printf("ILI9488 3.5-Inch CGD Test begin now...\r\n");
+ //   LCD_DrawBitmap(240, 160, ST_LOGO_1);
+
+#if 1    
     while(1)
     {
-      		POINT_COLOR=BLUE;	
-#if 0              
-                LCD_Set_Window(0,0, 300, 300);
-                LCD_WR_REG(0x2C);
-                uint16_t k;
-                for(k=0; k<90000; k++)
-                {
-                  LCD_WR_DATA(0x00);
-                  LCD_WR_DATA(0x1F);
-                }
-#endif
-                //LCD_Fill(20,40, 120, 140, BLUE);
- //               LCD_Draw_Circle(160,240,50);
-#if 0     
-                LCD_Clear(RED);
- 		LCD_ShowString(10,40,300,32,32,"STM32F429I EVAL Board"); 	
-		LCD_ShowString(10,80,300,24,24,"TFT-LCD TEST");
-		LCD_ShowString(10,110,300,16,16,"Simon Gu");
-		LCD_ShowString(10,150,300,12,12,"2017-6-26");
-#endif          
-                HAL_Delay(1000);
-#if 1
+      		POINT_COLOR=RED;
               switch(x)
 	       {
 			case 0:LCD_Clear(WHITE);break;
 			case 1:LCD_Clear(BLACK);break;
 			case 2:LCD_Clear(BLUE);break;
-			case 3:LCD_Clear(RED);break;
+			case 3:LCD_Clear(BRED);break;
 			case 4:LCD_Clear(MAGENTA);break;
 			case 5:LCD_Clear(GREEN);break;
 			case 6:LCD_Clear(CYAN);break; 
@@ -199,14 +170,29 @@ int main(void)
       					 
 		x++;
 		if(x==12)x=0;
-                LCD_ShowString(10,40,300,32,32,"STM32F429I EVAL Board"); 	
-		LCD_ShowString(10,80,300,24,24,"TFT-LCD TEST");
+                
+                LCD_ShowString(10,40,300,32,32,"Honeywell IAQ");
+                POINT_COLOR=BLUE;
+		LCD_ShowString(10,80,300,24,24,"FSMC-LCD TEST");
+                POINT_COLOR=WHITE;
 		LCD_ShowString(10,110,300,16,16,"Simon Gu");
+                POINT_COLOR=GREEN;
 		LCD_ShowString(10,150,300,12,12,"2017-6-26");
-#endif	
+                
+                LCD_DrawBitmap(240, 160, ST_LOGO_1);
+#if 1                  
+                for(k=0; k<70; k++)
+                {
+                   POINT_COLOR=RED; 
+                   LCD_Draw_Circle(120,240,10+k);
+                   POINT_COLOR=BLUE; 
+                   LCD_Draw_Circle(360,80,10+k);
+                }
+#endif
+                HAL_Delay(1000);
+
      }
- #endif
-  
+#endif 
 
   /* USER CODE END 2 */
 
@@ -356,7 +342,7 @@ static void MX_FMC_Init(void)
   /* Timing */
   Timing.AddressSetupTime = 15;
   Timing.AddressHoldTime = 15;
-  Timing.DataSetupTime = 15;
+  Timing.DataSetupTime = 70;
   Timing.BusTurnAroundDuration = 15;
   Timing.CLKDivision = 16;
   Timing.DataLatency = 3; //was 17;
