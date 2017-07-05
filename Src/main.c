@@ -5,7 +5,7 @@
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
+  * USER CODE END. Other portions of this file, whether
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
@@ -57,7 +57,7 @@
 #define LCD_RST_SET			HAL_GPIO_WritePin(LCD_RST_PORT, LCD_RST_PIN, GPIO_PIN_SET)
 #define LCD_RST_RESET			HAL_GPIO_WritePin(LCD_RST_PORT, LCD_RST_PIN, GPIO_PIN_RESET)
 
-    
+
 #define LCD_BKL_PORT      GPIOC
 #define LCD_BKL_PIN       GPIO_PIN_5
 #define LCD_BKL_CLK_ENABLE()           __HAL_RCC_GPIOC_CLK_ENABLE()
@@ -74,11 +74,13 @@
 
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
+I2C_HandleTypeDef hi2c2;
 
 SPI_HandleTypeDef hspi1;
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart3;
 
 SRAM_HandleTypeDef hsram1;
 
@@ -91,10 +93,12 @@ SRAM_HandleTypeDef hsram1;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FMC_Init(void);
-static void MX_USART1_UART_Init(void);
 static void MX_SPI1_Init(void);
-static void MX_I2C1_Init(void);
+static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_USART3_UART_Init(void);
+static void MX_I2C1_Init(void);
+static void MX_I2C2_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -114,7 +118,7 @@ int fputc(int ch, FILE *f)
 
 int main(void)
 {
-  uint8_t x=0; 
+  uint8_t x=0;
   uint8_t k;
   /* USER CODE BEGIN 1 */
 
@@ -139,12 +143,13 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_FMC_Init();
-  MX_USART1_UART_Init();
   MX_SPI1_Init();
-  MX_I2C1_Init();
+  MX_USART1_UART_Init();
   MX_USART2_UART_Init();
-  
-  
+  MX_USART3_UART_Init();
+  MX_I2C1_Init();
+  MX_I2C2_Init();
+
     	/* Force reset */
 	LCD_RST_RESET;
 	LCD_Delay(20000);
@@ -156,21 +161,38 @@ int main(void)
 	/* Software reset */
 	LCD_WR_REG(SOFT_RESET);
 	LCD_Delay(50000);
-  
+
         LCD_Init();
         LCD_BKL_SET;
 
   /* USER CODE BEGIN 2 */
 
-         
     printf("ILI9488 3.5-Inch CGD Test begin now...\r\n");
- 
-  
+
+  while (0) {
+    float h, t;
+    uint16_t co2, voc;
+
+    Get_VocData(&co2, &voc);
+    Get_HumiTemp(&h, &t);
+    S8_Read(&co2);
+
+    char str[32];
+    memset(str, 0, sizeof(str));
+    sprintf(str, "%dppm", voc);
+    sprintf(str, "%dppm", co2);
+    sprintf(str, "%.1f%%", h);
+    sprintf(str, "%.1f", t);
+
+    HAL_Delay(2000);
+ }
+
+
     while(1)
     {
       		POINT_COLOR=RED;
                 LCD_Switch_Off();
-             
+
               switch(x)
 	       {
 			case 0:LCD_Clear(WHITE);break;
@@ -179,18 +201,18 @@ int main(void)
 			case 3:LCD_Clear(BRED);break;
 			case 4:LCD_Clear(MAGENTA);break;
 			case 5:LCD_Clear(GREEN);break;
-			case 6:LCD_Clear(CYAN);break; 
+			case 6:LCD_Clear(CYAN);break;
 			case 7:LCD_Clear(YELLOW);break;
 			case 8:LCD_Clear(BRRED);break;
 			case 9:LCD_Clear(GRAY);break;
 			case 10:LCD_Clear(LGRAY);break;
 			case 11:LCD_Clear(BROWN);break;
 		}
-      				 
+
 		x++;
 		if(x==12)x=0;
-               
-               
+
+
                 LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
                 POINT_COLOR=BLUE;
 		LCD_ShowString(10,80,320,24,24,"FSMC-LCD TEST");
@@ -198,18 +220,18 @@ int main(void)
 		LCD_ShowString(10,110,320,16,16,"Simon Gu");
                 POINT_COLOR=GREEN;
 		LCD_ShowString(10,150,300,12,12,"2017-6-28");
-                
+
                 LCD_DrawBitmap(240, 160, ST_LOGO_1);
-                                  
+
                 for(k=0; k<70; k++)
                 {
-                   POINT_COLOR=RED; 
+                   POINT_COLOR=RED;
                    LCD_Draw_Circle(120,240,10+k);
-                   POINT_COLOR=BLUE; 
+                   POINT_COLOR=BLUE;
                    LCD_Draw_Circle(360,80,10+k);
                 }
                 LCD_Switch_On();
-                LCD_Scroll_On();  
+                LCD_Scroll_On();
                 HAL_Delay(1000);
         }
 
@@ -237,13 +259,13 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
 
-    /**Configure the main internal regulator output voltage 
+    /**Configure the main internal regulator output voltage
     */
   __HAL_RCC_PWR_CLK_ENABLE();
 
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-    /**Initializes the CPU, AHB and APB busses clocks 
+    /**Initializes the CPU, AHB and APB busses clocks
     */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
@@ -259,14 +281,14 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Activate the Over-Drive mode 
+    /**Activate the Over-Drive mode
     */
   if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Initializes the CPU, AHB and APB busses clocks 
+    /**Initializes the CPU, AHB and APB busses clocks
     */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -280,11 +302,11 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure the Systick interrupt time 
+    /**Configure the Systick interrupt time
     */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
-    /**Configure the Systick 
+    /**Configure the Systick
     */
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
@@ -298,7 +320,7 @@ static void MX_I2C1_Init(void)
 
   hi2c1.Instance = I2C1;
   hi2c1.Init.ClockSpeed = 100000;
-  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_16_9;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -311,6 +333,27 @@ static void MX_I2C1_Init(void)
   }
 
 }
+
+/* I2C2 init function */
+static void MX_I2C2_Init(void)
+{
+
+  hi2c2.Instance = I2C2;
+  hi2c2.Init.ClockSpeed = 100000;
+  hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_16_9;
+  hi2c2.Init.OwnAddress1 = 0;
+  hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c2.Init.OwnAddress2 = 0;
+  hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
 
 /* SPI1 init function */
 static void MX_SPI1_Init(void)
@@ -367,6 +410,25 @@ static void MX_USART2_UART_Init(void)
   huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
   if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* USART3 init function */
+static void MX_USART3_UART_Init(void)
+{
+
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 9600;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -432,10 +494,11 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
-  
-  
+
+
     /* Configure the LCD RST pin */
   GPIO_InitStruct.Pin = LCD_RST_PIN;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -443,7 +506,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
 
   HAL_GPIO_Init(LCD_RST_PORT, &GPIO_InitStruct);
-  
+
      /* Configure the LCD BackLight pin */
   GPIO_InitStruct.Pin = LCD_BKL_PIN;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -466,10 +529,10 @@ void _Error_Handler(char * file, int line)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-  while(1) 
+  while(1)
   {
   }
-  /* USER CODE END Error_Handler_Debug */ 
+  /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef USE_FULL_ASSERT
@@ -494,10 +557,10 @@ void assert_failed(uint8_t* file, uint32_t line)
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-*/ 
+*/
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -984,6 +984,12 @@
         <name>$PROJ_DIR$\..\Src\fonts.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\hih6130.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Src\i2c.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\ili9488.c</name>
       </file>
       <file>
@@ -993,10 +999,16 @@
         <name>$PROJ_DIR$\..\Src\main.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\Src\sensair.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\Src\stm32f4xx_hal_msp.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\stm32f4xx_it.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Src\voc.c</name>
       </file>
     </group>
   </group>
