@@ -90,7 +90,10 @@ typedef struct
 	    															  
 void LCD_Init(void);													   	
 void LCD_DisplayOn(void);													
-void LCD_DisplayOff(void);													
+void LCD_DisplayOff(void);
+void LCD_Switch_Off(void);
+void LCD_Switch_On(void);
+void LCD_Scroll_On(void);
 void LCD_Clear(u32 Color);	 												
 void LCD_SetCursor(u16 x1, u16 y1, u16 x2, u16 y2);										
 void LCD_DrawPoint(u16 x,u16 y);											

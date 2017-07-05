@@ -57,6 +57,16 @@
 #define LCD_RST_SET			HAL_GPIO_WritePin(LCD_RST_PORT, LCD_RST_PIN, GPIO_PIN_SET)
 #define LCD_RST_RESET			HAL_GPIO_WritePin(LCD_RST_PORT, LCD_RST_PIN, GPIO_PIN_RESET)
 
+    
+#define LCD_BKL_PORT      GPIOC
+#define LCD_BKL_PIN       GPIO_PIN_5
+#define LCD_BKL_CLK_ENABLE()           __HAL_RCC_GPIOC_CLK_ENABLE()
+#define LCD_BKL_CLK_DISABLE()          __HAL_RCC_GPIOC_CLK_DISABLE()
+
+#define LCD_BKL_SET			HAL_GPIO_WritePin(LCD_BKL_PORT, LCD_BKL_PIN, GPIO_PIN_SET)
+#define LCD_BKL_RESET			HAL_GPIO_WritePin(LCD_BKL_PORT, LCD_BKL_PIN, GPIO_PIN_RESET)
+
+
 
 /* USER CODE BEGIN Includes */
 
@@ -140,23 +150,25 @@ int main(void)
 	LCD_WR_REG(SOFT_RESET);
 	LCD_Delay(50000);
   
-        LCD_Init();	         
+        LCD_Init();
+        LCD_BKL_SET;
 
   /* USER CODE BEGIN 2 */
 
          
     printf("ILI9488 3.5-Inch CGD Test begin now...\r\n");
- //   LCD_DrawBitmap(240, 160, ST_LOGO_1);
-
-#if 1    
+ 
+  
     while(1)
     {
       		POINT_COLOR=RED;
+                LCD_Switch_Off();
+             
               switch(x)
 	       {
 			case 0:LCD_Clear(WHITE);break;
 			case 1:LCD_Clear(BLACK);break;
-			case 2:LCD_Clear(BLUE);break;
+			case 2:LCD_Clear(GBLUE);break;
 			case 3:LCD_Clear(BRED);break;
 			case 4:LCD_Clear(MAGENTA);break;
 			case 5:LCD_Clear(GREEN);break;
@@ -167,20 +179,21 @@ int main(void)
 			case 10:LCD_Clear(LGRAY);break;
 			case 11:LCD_Clear(BROWN);break;
 		}
-      					 
+      				 
 		x++;
 		if(x==12)x=0;
-                
-                LCD_ShowString(10,40,300,32,32,"Honeywell IAQ");
+               
+               
+                LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
                 POINT_COLOR=BLUE;
-		LCD_ShowString(10,80,300,24,24,"FSMC-LCD TEST");
+		LCD_ShowString(10,80,320,24,24,"FSMC-LCD TEST");
                 POINT_COLOR=WHITE;
-		LCD_ShowString(10,110,300,16,16,"Simon Gu");
+		LCD_ShowString(10,110,320,16,16,"Simon Gu");
                 POINT_COLOR=GREEN;
-		LCD_ShowString(10,150,300,12,12,"2017-6-26");
+		LCD_ShowString(10,150,300,12,12,"2017-6-28");
                 
                 LCD_DrawBitmap(240, 160, ST_LOGO_1);
-#if 1                  
+                                  
                 for(k=0; k<70; k++)
                 {
                    POINT_COLOR=RED; 
@@ -188,11 +201,11 @@ int main(void)
                    POINT_COLOR=BLUE; 
                    LCD_Draw_Circle(360,80,10+k);
                 }
-#endif
+                LCD_Switch_On();
+                LCD_Scroll_On();  
                 HAL_Delay(1000);
+        }
 
-     }
-#endif 
 
   /* USER CODE END 2 */
 
@@ -350,7 +363,7 @@ static void MX_FMC_Init(void)
   /* ExtTiming */
   ExtTiming.AddressSetupTime = 15;
   ExtTiming.AddressHoldTime = 15;
-  ExtTiming.DataSetupTime = 15;
+  ExtTiming.DataSetupTime = 70;
   ExtTiming.BusTurnAroundDuration = 15;
   ExtTiming.CLKDivision = 16;
   ExtTiming.DataLatency = 3; //was 17;
@@ -374,16 +387,24 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   
   
-    /* Configure the GPIO pin */
+    /* Configure the LCD RST pin */
   GPIO_InitStruct.Pin = LCD_RST_PIN;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
 
   HAL_GPIO_Init(LCD_RST_PORT, &GPIO_InitStruct);
+  
+     /* Configure the LCD BackLight pin */
+  GPIO_InitStruct.Pin = LCD_BKL_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
 
+  HAL_GPIO_Init(LCD_BKL_PORT, &GPIO_InitStruct);
 }
 
 /* USER CODE BEGIN 4 */

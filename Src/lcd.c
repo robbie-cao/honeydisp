@@ -7,7 +7,8 @@
 u32 POINT_COLOR=0xFF000000;		//画笔颜色
 u32 BACK_COLOR =0xFFFFFFFF;  	//背景色 
 
-
+#define PIXEL_OFF  0x23
+#define NORMAL_DISP_ON  0x13
 
 _lcd_dev lcddev;
 	   
@@ -20,15 +21,13 @@ void LCD_WR_REG(volatile uint16_t regval)
 {   
 	regval=regval;		//使用-O2优化的时候,必须插入的延时
 	LCD->LCD_REG=regval & 0xFF;    //写入要写的寄存器序号	 
-        LCD_Delay(20);
-}
+ }
 
 void LCD_WR_DATA(volatile uint16_t data)
 {	  
 	data=data;			//使用-O2优化的时候,必须插入的延时
 	LCD->LCD_RAM=data;	
-        LCD_Delay(20);
-}
+ }
 
 u16 LCD_RD_DATA(void)
 {
@@ -102,6 +101,39 @@ void LCD_DisplayOff(void)
 	LCD_WR_REG(0X28);	//关闭显示
 }   
 
+void LCD_Switch_Off(void)
+{
+        LCD_WR_REG(PIXEL_OFF);
+        LCD_WR_DATA(0);
+}
+
+void LCD_Scroll_On(void)
+{
+     uint16_t index;
+        LCD_WR_REG(0x33);
+        LCD_WR_DATA(0);
+        LCD_WR_DATA(0);
+        LCD_WR_DATA(0x1);
+        LCD_WR_DATA(0xDF);
+        LCD_WR_DATA(0);
+        LCD_WR_DATA(0);
+
+        for(index=0; index<480;index++)
+        {
+           LCD_WR_REG(0x37);
+           LCD_WR_DATA((index>>8)&0xFF);
+           LCD_WR_DATA(index & 0xFF);
+           LCD_Delay(10000);
+        }
+    
+}
+
+void LCD_Switch_On(void)
+{
+        LCD_WR_REG(NORMAL_DISP_ON);
+        LCD_WR_DATA(0);
+}
+
 void LCD_SetCursor(u16 x1, u16 y1, u16 x2, u16 y2)
 {	 
 		LCD_WR_REG(lcddev.setxcmd); 
@@ -148,7 +180,7 @@ void LCD_Scan_Dir(u8 dir)
 
 		dirreg=0X36;
                 regval|=0X08;
- 
+
  		LCD_WriteReg(dirreg,regval);
 
 			if(regval&0X20)
@@ -294,14 +326,14 @@ void LCD_Init(void)
 	LCD_WR_DATA(0x80);
 
 	LCD_WR_REG(0x36);
-	LCD_WR_DATA(0x0);
+	LCD_WR_DATA(0x08);
 
 	LCD_WR_REG(0x3A);  //Interface Mode Control
 	LCD_WR_DATA(0x55);  //5-6-5
 
 	LCD_WR_REG(0XB0);  //Interface Mode Control
 	LCD_WR_DATA(0x00);
-
+        
 	LCD_WR_REG(0xB4);
 	LCD_WR_DATA(0x02);
 
@@ -325,7 +357,7 @@ void LCD_Init(void)
 	LCD_WR_REG(0x29); //Display on
 	LCD_Delay(10);
 	
-	LCD_Display_Dir(0);		//默认为竖屏
+	LCD_Display_Dir(1);		//默认为竖屏
 	LCD_Clear(BLACK);
 }  
 
@@ -545,7 +577,7 @@ void LCD_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint16_t *pBmp)
 {
   uint32_t height = 160, width  =240;
 
-#if 0
+#if 0  //for standard BMP file, we need analyze header as below
   /* Read bitmap width */
   width = *(pBmp + 9);
   width |= (*(pBmp + 10)) << 16;
@@ -570,22 +602,11 @@ void LCD_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint16_t *pBmp)
   pBmp += index;
 #endif
 
-#if 0
-  LCD_SetCursor(Xpos, Ypos, Xpos + width - 1, Ypos + height - 1);
-  uint8_t *p0 = pBmp;
-  for (int i = 0; i < width; i++) {
-	  for (int j = 0; j < height; j++) {
-		uint32_t color = (*p0++) << 16 | (*p0++) << 8 | (*p0++);
-		LCD_DrawPixel(Xpos + i, Ypos + j, color);
-	  }
-  }
-  LCD_SetCursor(0, 0, lcddev.width-1, lcddev.height-1);
-#else
 
   LCD_SetCursor(Xpos, Ypos, Xpos + width - 1, Ypos + height - 1);
 
  // LCD_WR_REG(0x36);
- // LCD_WR_DATA(0x40);
+ //  LCD_WR_DATA(0x20);
 
   LCD_WR_REG(0x2C);
 
@@ -601,7 +622,7 @@ void LCD_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint16_t *pBmp)
    }
 
   LCD_SetCursor(0, 0, lcddev.width-1, lcddev.height-1);
-#endif
+
 }
 
 
