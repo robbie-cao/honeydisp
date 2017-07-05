@@ -169,7 +169,8 @@ int main(void)
 
     printf("ILI9488 3.5-Inch CGD Test begin now...\r\n");
 
-  while (0) {
+    LCD_Clear(BLACK);
+  while (1) {
     float h, t;
     uint16_t co2, voc;
 
@@ -177,12 +178,25 @@ int main(void)
     Get_HumiTemp(&h, &t);
     S8_Read(&co2);
 
+    POINT_COLOR=WHITE;
+    LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
+    LCD_ShowString(10,80,320,32,32,"VOC:");
+    LCD_ShowString(10,120,320,32,32,"CO2:");
+    LCD_ShowString(10,160,320,32,32,"HUM:");
+    LCD_ShowString(10,200,320,32,32,"TEM:");
+
+    LCD_Fill(320,80,479,240,BLACK);
     char str[32];
     memset(str, 0, sizeof(str));
     sprintf(str, "%dppm", voc);
+    LCD_ShowString(320,80,320,32,32,str);
     sprintf(str, "%dppm", co2);
+    LCD_ShowString(320,120,320,32,32,str);
     sprintf(str, "%.1f%%", h);
+    LCD_ShowString(320,160,320,32,32,str);
     sprintf(str, "%.1f", t);
+    LCD_ShowString(320,200,320,32,32,str);
+
 
     HAL_Delay(2000);
  }
