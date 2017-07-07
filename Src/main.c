@@ -176,23 +176,34 @@ int main(void)
 
       uint8_t res = 0;
       uint8_t resp[16];
-      uint8_t meas[] = { 0x68, 0x01, 0x01, 0x96 };
+
+      uint8_t autoStop[] = { 0x68, 0x01, 0x20, 0x77 };
 
       memset(resp, 0, sizeof(resp));
-      res = HAL_UART_Transmit(&huart4, meas, 4, 1000);
+      res = HAL_UART_Transmit(&huart3, autoStop, 4, 10000);
       printf("TX res: %d\r\n", res);
-      HAL_Delay(50);
-      res = HAL_UART_Receive(&huart4, resp, 2, 1000);
+//      HAL_Delay(50);
+      res = HAL_UART_Receive(&huart3, resp, 2, 10000);
       printf("RX res: %d\r\n", res);
       printf("0x%02x 0x%02x\r\n", resp[0], resp[1]);
 
-    while (0) {
+      uint8_t meas[] = { 0x68, 0x01, 0x01, 0x96 };
+
+      memset(resp, 0, sizeof(resp));
+      res = HAL_UART_Transmit(&huart3, meas, 4, 10000);
+      printf("TX res: %d\r\n", res);
+//      HAL_Delay(50);
+      res = HAL_UART_Receive(&huart3, resp, 2, 10000);
+      printf("RX res: %d\r\n", res);
+      printf("0x%02x 0x%02x\r\n", resp[0], resp[1]);
+
+    while (1) {
       uint8_t read[] = { 0x68, 0x01, 0x04, 0x93 };
       memset(resp, 0, sizeof(resp));
-      res = HAL_UART_Transmit(&huart4, read, 4, 1000);
+      res = HAL_UART_Transmit(&huart3, read, 4, 10000);
       printf("TX res: %d\r\n", res);
       //HAL_Delay(50);
-      res = HAL_UART_Receive(&huart4, resp, 8, 1000);
+      res = HAL_UART_Receive(&huart3, resp, 8, 10000);
       printf("RX res: %d\r\n", res);
       printf("0x%02x %02x %02x %02x %02x %02x %02x %02x\r\n", resp[0], resp[1], resp[2], resp[3], resp[4], resp[5], resp[6], resp[7]);
       HAL_Delay(1000);
