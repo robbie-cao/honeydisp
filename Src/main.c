@@ -78,6 +78,7 @@ I2C_HandleTypeDef hi2c2;
 
 SPI_HandleTypeDef hspi1;
 
+UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
@@ -97,6 +98,7 @@ static void MX_SPI1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
+static void MX_UART4_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_I2C2_Init(void);
 
@@ -147,6 +149,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
+  MX_UART4_Init();
   MX_I2C1_Init();
   MX_I2C2_Init();
 
@@ -170,14 +173,55 @@ int main(void)
     printf("ILI9488 3.5-Inch CGD Test begin now...\r\n");
 
     LCD_Clear(BLACK);
+
+      uint8_t res = 0;
+      uint8_t resp[16];
+      uint8_t meas[] = { 0x68, 0x01, 0x01, 0x96 };
+
+      memset(resp, 0, sizeof(resp));
+      res = HAL_UART_Transmit(&huart4, meas, 4, 1000);
+      printf("TX res: %d\r\n", res);
+      HAL_Delay(50);
+      res = HAL_UART_Receive(&huart4, resp, 2, 1000);
+      printf("RX res: %d\r\n", res);
+      printf("0x%02x 0x%02x\r\n", resp[0], resp[1]);
+
+    while (0) {
+      uint8_t read[] = { 0x68, 0x01, 0x04, 0x93 };
+      memset(resp, 0, sizeof(resp));
+      res = HAL_UART_Transmit(&huart4, read, 4, 1000);
+      printf("TX res: %d\r\n", res);
+      //HAL_Delay(50);
+      res = HAL_UART_Receive(&huart4, resp, 8, 1000);
+      printf("RX res: %d\r\n", res);
+      printf("0x%02x %02x %02x %02x %02x %02x %02x %02x\r\n", resp[0], resp[1], resp[2], resp[3], resp[4], resp[5], resp[6], resp[7]);
+      HAL_Delay(1000);
+    }
+
+    POINT_COLOR=WHITE;
+    LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
+//    LCD_ShowString(10,80,320,64,64,"0123456789");
+    while (1) {
+      POINT_COLOR=WHITE;
+      LCD_ShowString(10,80,320,128,128,"0123456789");
+      HAL_Delay(1000);
+      POINT_COLOR=RED;
+      LCD_ShowString(10,80,320,128,128,"9876543210");
+      HAL_Delay(1000);
+    }
+
   while (1) {
     float h, t;
     uint16_t co2, voc;
+    char str[32];
 
+    memset(str, 0, sizeof(str));
     Get_VocData(&co2, &voc);
     Get_HumiTemp(&h, &t);
     S8_Read(&co2);
 
+
+#if 1
     POINT_COLOR=WHITE;
     LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
     LCD_ShowString(10,80,320,32,32,"VOC:");
@@ -186,8 +230,6 @@ int main(void)
     LCD_ShowString(10,200,320,32,32,"TEM:");
 
     LCD_Fill(320,80,479,240,BLACK);
-    char str[32];
-    memset(str, 0, sizeof(str));
     sprintf(str, "%dppm", voc);
     LCD_ShowString(320,80,320,32,32,str);
     sprintf(str, "%dppm", co2);
@@ -196,7 +238,41 @@ int main(void)
     LCD_ShowString(320,160,320,32,32,str);
     sprintf(str, "%.1f", t);
     LCD_ShowString(320,200,320,32,32,str);
+#else
+    static int ccc = 0;
+    int k = 0;
+    k = ccc % 4;
+    ccc += 1;
 
+    POINT_COLOR=WHITE;
+    LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
+    LCD_Fill(10,80,479,120,BLACK);
+
+    switch (k) {
+    case 0:
+      sprintf(str, "%dppm", voc);
+      LCD_ShowString(10,80,320,32,32,"VOC:");
+      LCD_ShowString(320,80,320,32,32,str);
+      break;
+    case 1:
+      sprintf(str, "%dppm", co2);
+      LCD_ShowString(10,80,320,32,32,"CO2:");
+      LCD_ShowString(320,80,320,32,32,str);
+      break;
+    case 2:
+      sprintf(str, "%.1f%%", h);
+      LCD_ShowString(10,80,320,32,32,"HUM:");
+      LCD_ShowString(320,80,320,32,32,str);
+      break;
+    case 3:
+      sprintf(str, "%.1f", t);
+      LCD_ShowString(10,80,320,32,32,"TEM:");
+      LCD_ShowString(320,80,320,32,32,str);
+      break;
+    default:
+      break;
+    }
+#endif
 
     HAL_Delay(2000);
  }
@@ -386,6 +462,25 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
   hspi1.Init.CRCPolynomial = 10;
   if (HAL_SPI_Init(&hspi1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* UART4 init function */
+static void MX_UART4_Init(void)
+{
+
+  huart4.Instance = UART4;
+  huart4.Init.BaudRate = 9600;
+  huart4.Init.WordLength = UART_WORDLENGTH_8B;
+  huart4.Init.StopBits = UART_STOPBITS_1;
+  huart4.Init.Parity = UART_PARITY_NONE;
+  huart4.Init.Mode = UART_MODE_TX_RX;
+  huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart4.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart4) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
