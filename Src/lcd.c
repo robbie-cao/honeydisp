@@ -473,16 +473,30 @@ void LCD_Draw_Circle(u16 x0,u16 y0,u8 r)
 
 void LCD_ShowChar(u16 x,u16 y,u8 num,u8 size,u8 mode)
 {
-    u8 temp,t1,t;
+    u16 temp,t1,t;
 	u16 y0=y;
-	u8 csize=(size/8+((size%8)?1:0))*(size/2);		//得到字体一个字符对应点阵集所占的字节数
+	u16 csize;
+        if (size == 64) {
+          num = num - '0';
+          csize=(size/8+((size%8)?1:0))*42;
+          LCD_Fill(x,y,x+42-1,y+size-1,BLACK);
+        } else if (size == 128) {
+          num = num - '0';
+          csize=(size/8+((size%8)?1:0))*83;
+          LCD_Fill(x,y,x+83-1,y+size-1,BLACK);
+        } else {
  	num=num-' ';
+        csize=(size/8+((size%8)?1:0))*(size/2);		//得到字体一个字符对应点阵集所占的字节数
+          LCD_Fill(x,y,x+size/2-1,y+size-1,BLACK);
+        }
 	for(t=0;t<csize;t++)
 	{
 		if(size==12)temp=asc2_1206[num][t]; 	 	//调用1206字体
 		else if(size==16)temp=asc2_1608[num][t];	//调用1608字体
 		else if(size==24)temp=asc2_2412[num][t];	//调用2412字体
 		else if(size==32)temp=asc2_3216[num][t];	//调用3216字体
+		else if(size==64)temp=asc2_6432[num][t];	//调用3216字体
+		else if(size==128)temp=asc2_128[num][t];	//调用3216字体
 		else return;								//没有的字库
 		for(t1=0;t1<8;t1++)
 		{
