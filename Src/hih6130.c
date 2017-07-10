@@ -7,11 +7,11 @@ void HIH6130_Init(void)
 }
 
 /**
-  * @brief  Read H/T sensor raw data and do some simple processing
-  * @param  1: pointer to 16-bit humidity data
-            2: pointer to 16-bit temp data
-  * @retval Operation SUCCESS or ERROR
-  */
+ * @brief  Read H/T sensor raw data and do some simple processing
+ * @param  1: pointer to 16-bit humidity data
+ *         2: pointer to 16-bit temp data
+ * @retval Operation SUCCESS or ERROR
+ */
 ErrorStatus HIH6130_ReadHumiTemp(uint16_t* pDataH, uint16_t* pDataT)
 {
   uint8_t res = 0;
@@ -48,11 +48,11 @@ ErrorStatus HIH6130_ReadHumiTemp(uint16_t* pDataH, uint16_t* pDataT)
 }
 
 /**
-  * @brief  Change raw data to human readable.
-  * @param  1: pointer to float relative humidity data
-            2: pointer to float temperature in Celcius
-  * @retval None
-  */
+ * @brief  Change raw data to human readable.
+ * @param  1: pointer to float relative humidity data
+ *         2: pointer to float temperature in Celcius
+ * @retval None
+ */
 void Get_HumiTemp(float* rh, float* tc)
 {
   uint16_t humi, temp;

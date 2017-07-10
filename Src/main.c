@@ -1,40 +1,40 @@
 /**
-  ******************************************************************************
-  * File Name          : main.c
-  * Description        : Main program body
-  ******************************************************************************
-  ** This notice applies to any and all portions of this file
-  * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
-  *
-  * COPYRIGHT(c) 2017 STMicroelectronics
-  *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * File Name          : main.c
+ * Description        : Main program body
+ ******************************************************************************
+ ** This notice applies to any and all portions of this file
+ * that are not between comment pairs USER CODE BEGIN and
+ * USER CODE END. Other portions of this file, whether
+ * inserted by the user or by software development tools
+ * are owned by their respective copyright owners.
+ *
+ * COPYRIGHT(c) 2017 STMicroelectronics
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *   1. Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *   3. Neither the name of STMicroelectronics nor the names of its contributors
+ *      may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************
+ */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
@@ -48,7 +48,7 @@
 //extern FontDef_t Font_11x18;
 //extern FontDef_t Font_16x26;
 
-  /* Pin definitions */
+/* Pin definitions */
 #define LCD_RST_PORT      GPIOC
 #define LCD_RST_PIN       GPIO_PIN_6
 #define LCD_RST_CLK_ENABLE()           __HAL_RCC_GPIOC_CLK_ENABLE()
@@ -153,49 +153,49 @@ int main(void)
   MX_I2C1_Init();
   MX_I2C2_Init();
 
-    	/* Force reset */
-	LCD_RST_RESET;
-	LCD_Delay(20000);
-	LCD_RST_SET;
+  /* Force reset */
+  LCD_RST_RESET;
+  LCD_Delay(20000);
+  LCD_RST_SET;
 
-	/* Delay for RST response */
-	LCD_Delay(20000);
+  /* Delay for RST response */
+  LCD_Delay(20000);
 
-	/* Software reset */
-	LCD_WR_REG(SOFT_RESET);
-	LCD_Delay(50000);
+  /* Software reset */
+  LCD_WR_REG(SOFT_RESET);
+  LCD_Delay(50000);
 
-        LCD_Init();
-        LCD_BKL_SET;
+  LCD_Init();
+  LCD_BKL_SET;
 
   /* USER CODE BEGIN 2 */
 
-    printf("ILI9488 3.5-Inch CGD Test begin now...\r\n");
+  printf("ILI9488 3.5-Inch CGD Test begin now...\r\n");
 
-    LCD_Clear(BLACK);
+  LCD_Clear(BLACK);
 
 
-    PM25_StopAutoSend();
-    PM25_StartMeasurement();
-    HAL_Delay(100);
+  PM25_StopAutoSend();
+  PM25_StartMeasurement();
+  HAL_Delay(100);
 
-    while (1) {
-      uint16_t pm25, pm10;
-      PM25_Read(&pm25, &pm10);
-      HAL_Delay(1000);
-    }
+  while (1) {
+    uint16_t pm25, pm10;
+    PM25_Read(&pm25, &pm10);
+    HAL_Delay(1000);
+  }
 
+  POINT_COLOR=WHITE;
+  LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
+  //    LCD_ShowString(10,80,320,64,64,"0123456789");
+  while (1) {
     POINT_COLOR=WHITE;
-    LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
-//    LCD_ShowString(10,80,320,64,64,"0123456789");
-    while (1) {
-      POINT_COLOR=WHITE;
-      LCD_ShowString(10,80,320,128,128,"0123456789");
-      HAL_Delay(1000);
-      POINT_COLOR=RED;
-      LCD_ShowString(10,80,320,128,128,"9876543210");
-      HAL_Delay(1000);
-    }
+    LCD_ShowString(10,80,320,128,128,"0123456789");
+    HAL_Delay(1000);
+    POINT_COLOR=RED;
+    LCD_ShowString(10,80,320,128,128,"9876543210");
+    HAL_Delay(1000);
+  }
 
   while (1) {
     float h, t;
@@ -236,81 +236,81 @@ int main(void)
     LCD_Fill(10,80,479,120,BLACK);
 
     switch (k) {
-    case 0:
-      sprintf(str, "%dppm", voc);
-      LCD_ShowString(10,80,320,32,32,"VOC:");
-      LCD_ShowString(320,80,320,32,32,str);
-      break;
-    case 1:
-      sprintf(str, "%dppm", co2);
-      LCD_ShowString(10,80,320,32,32,"CO2:");
-      LCD_ShowString(320,80,320,32,32,str);
-      break;
-    case 2:
-      sprintf(str, "%.1f%%", h);
-      LCD_ShowString(10,80,320,32,32,"HUM:");
-      LCD_ShowString(320,80,320,32,32,str);
-      break;
-    case 3:
-      sprintf(str, "%.1f", t);
-      LCD_ShowString(10,80,320,32,32,"TEM:");
-      LCD_ShowString(320,80,320,32,32,str);
-      break;
-    default:
-      break;
+      case 0:
+        sprintf(str, "%dppm", voc);
+        LCD_ShowString(10,80,320,32,32,"VOC:");
+        LCD_ShowString(320,80,320,32,32,str);
+        break;
+      case 1:
+        sprintf(str, "%dppm", co2);
+        LCD_ShowString(10,80,320,32,32,"CO2:");
+        LCD_ShowString(320,80,320,32,32,str);
+        break;
+      case 2:
+        sprintf(str, "%.1f%%", h);
+        LCD_ShowString(10,80,320,32,32,"HUM:");
+        LCD_ShowString(320,80,320,32,32,str);
+        break;
+      case 3:
+        sprintf(str, "%.1f", t);
+        LCD_ShowString(10,80,320,32,32,"TEM:");
+        LCD_ShowString(320,80,320,32,32,str);
+        break;
+      default:
+        break;
     }
 #endif
 
     HAL_Delay(2000);
- }
+  }
 
 
-    while(1)
+  while(1)
+  {
+    POINT_COLOR=RED;
+    LCD_Switch_Off();
+
+    switch(x)
     {
-      		POINT_COLOR=RED;
-                LCD_Switch_Off();
+      case 0: LCD_Clear(WHITE);  break;
+      case 1: LCD_Clear(BLACK);  break;
+      case 2: LCD_Clear(GBLUE);  break;
+      case 3: LCD_Clear(BRED);   break;
+      case 4: LCD_Clear(MAGENTA);break;
+      case 5: LCD_Clear(GREEN);  break;
+      case 6: LCD_Clear(CYAN);   break;
+      case 7: LCD_Clear(YELLOW); break;
+      case 8: LCD_Clear(BRRED);  break;
+      case 9: LCD_Clear(GRAY);   break;
+      case 10:LCD_Clear(LGRAY);  break;
+      case 11:LCD_Clear(BROWN);  break;
+    }
 
-              switch(x)
-	       {
-			case 0:LCD_Clear(WHITE);break;
-			case 1:LCD_Clear(BLACK);break;
-			case 2:LCD_Clear(GBLUE);break;
-			case 3:LCD_Clear(BRED);break;
-			case 4:LCD_Clear(MAGENTA);break;
-			case 5:LCD_Clear(GREEN);break;
-			case 6:LCD_Clear(CYAN);break;
-			case 7:LCD_Clear(YELLOW);break;
-			case 8:LCD_Clear(BRRED);break;
-			case 9:LCD_Clear(GRAY);break;
-			case 10:LCD_Clear(LGRAY);break;
-			case 11:LCD_Clear(BROWN);break;
-		}
-
-		x++;
-		if(x==12)x=0;
+    x++;
+    if(x==12)x=0;
 
 
-                LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
-                POINT_COLOR=BLUE;
-		LCD_ShowString(10,80,320,24,24,"FSMC-LCD TEST");
-                POINT_COLOR=WHITE;
-		LCD_ShowString(10,110,320,16,16,"Simon Gu");
-                POINT_COLOR=GREEN;
-		LCD_ShowString(10,150,300,12,12,"2017-6-28");
+    LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
+    POINT_COLOR=BLUE;
+    LCD_ShowString(10,80,320,24,24,"FSMC-LCD TEST");
+    POINT_COLOR=WHITE;
+    LCD_ShowString(10,110,320,16,16,"Simon Gu");
+    POINT_COLOR=GREEN;
+    LCD_ShowString(10,150,300,12,12,"2017-6-28");
 
-                LCD_DrawBitmap(240, 160, ST_LOGO_1);
+    LCD_DrawBitmap(240, 160, ST_LOGO_1);
 
-                for(k=0; k<70; k++)
-                {
-                   POINT_COLOR=RED;
-                   LCD_Draw_Circle(120,240,10+k);
-                   POINT_COLOR=BLUE;
-                   LCD_Draw_Circle(360,80,10+k);
-                }
-                LCD_Switch_On();
-                LCD_Scroll_On();
-                HAL_Delay(1000);
-        }
+    for(k=0; k<70; k++)
+    {
+      POINT_COLOR=RED;
+      LCD_Draw_Circle(120,240,10+k);
+      POINT_COLOR=BLUE;
+      LCD_Draw_Circle(360,80,10+k);
+    }
+    LCD_Switch_On();
+    LCD_Scroll_On();
+    HAL_Delay(1000);
+  }
 
 
   /* USER CODE END 2 */
@@ -319,9 +319,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  /* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-  /* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
 
   }
   /* USER CODE END 3 */
@@ -336,14 +336,14 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
 
-    /**Configure the main internal regulator output voltage
-    */
+  /**Configure the main internal regulator output voltage
+  */
   __HAL_RCC_PWR_CLK_ENABLE();
 
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-    /**Initializes the CPU, AHB and APB busses clocks
-    */
+  /**Initializes the CPU, AHB and APB busses clocks
+  */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = 16;
@@ -358,17 +358,17 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Activate the Over-Drive mode
-    */
+  /**Activate the Over-Drive mode
+  */
   if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Initializes the CPU, AHB and APB busses clocks
-    */
+  /**Initializes the CPU, AHB and APB busses clocks
+  */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+    |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
@@ -379,12 +379,12 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure the Systick interrupt time
-    */
+  /**Configure the Systick interrupt time
+  */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
-    /**Configure the Systick
-    */
+  /**Configure the Systick
+  */
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
   /* SysTick_IRQn interrupt configuration */
@@ -595,7 +595,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
 
 
-    /* Configure the LCD RST pin */
+  /* Configure the LCD RST pin */
   GPIO_InitStruct.Pin = LCD_RST_PIN;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
@@ -603,7 +603,7 @@ static void MX_GPIO_Init(void)
 
   HAL_GPIO_Init(LCD_RST_PORT, &GPIO_InitStruct);
 
-     /* Configure the LCD BackLight pin */
+  /* Configure the LCD BackLight pin */
   GPIO_InitStruct.Pin = LCD_BKL_PIN;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
@@ -617,10 +617,10 @@ static void MX_GPIO_Init(void)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @param  None
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @param  None
+ * @retval None
+ */
 void _Error_Handler(char * file, int line)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -634,17 +634,17 @@ void _Error_Handler(char * file, int line)
 #ifdef USE_FULL_ASSERT
 
 /**
-   * @brief Reports the name of the source file and the source line number
-   * where the assert_param error has occurred.
-   * @param file: pointer to the source file name
-   * @param line: assert_param error line source number
-   * @retval None
-   */
+ * @brief Reports the name of the source file and the source line number
+ * where the assert_param error has occurred.
+ * @param file: pointer to the source file name
+ * @param line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t* file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
-    ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 
 }
@@ -652,11 +652,11 @@ void assert_failed(uint8_t* file, uint32_t line)
 #endif
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /**
-  * @}
-*/
+ * @}
+ */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

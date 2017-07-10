@@ -16,7 +16,7 @@ uint8_t PM25_EnableAutoSend(void)
   }
   printf("\r\n");
   if (rcv[0] != 0xA5 || rcv[1] != 0xA5) {
-	return ERROR;
+    return ERROR;
   }
 
   return SUCCESS;
@@ -35,7 +35,7 @@ uint8_t PM25_StopAutoSend(void)
   }
   printf("\r\n");
   if (rcv[0] != 0xA5 || rcv[1] != 0xA5) {
-	return ERROR;
+    return ERROR;
   }
 
   return SUCCESS;
@@ -54,7 +54,7 @@ uint8_t PM25_StartMeasurement(void)
   }
   printf("\r\n");
   if (rcv[0] != 0xA5 || rcv[1] != 0xA5) {
-	return ERROR;
+    return ERROR;
   }
 
   return SUCCESS;
@@ -73,7 +73,7 @@ uint8_t PM25_StopMeasurement(void)
   }
   printf("\r\n");
   if (rcv[0] != 0xA5 || rcv[1] != 0xA5) {
-	return ERROR;
+    return ERROR;
   }
 
   return SUCCESS;
@@ -93,10 +93,10 @@ uint8_t PM25_Read(uint16_t *pm25, uint16_t *pm10)
   printf("\r\n");
   if (!(rcv[0] == 0x40 && rcv[1] == 0x05 && rcv[2] == 0x04)) {
     *pm25 = 0;
-	*pm10 = 0;
-	return ERROR;
+    *pm10 = 0;
+    return ERROR;
   }
-  
+
   *pm25 = (rcv[3] << 8) | rcv[4];
   *pm10 = (rcv[5] << 8) | rcv[6];
 

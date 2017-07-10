@@ -23,7 +23,7 @@ ErrorStatus Read_VocData(uint16_t* pDataCO2 ,uint16_t* pDataVOC)
   printf("\r\n");
 
   if (res != HAL_OK) {
-	  return ERROR;
+    return ERROR;
   }
   /**
    * Check status:
@@ -43,10 +43,10 @@ ErrorStatus Read_VocData(uint16_t* pDataCO2 ,uint16_t* pDataVOC)
 }
 
 /**
-  * @brief  Change raw data to human readable.
-  * @param  1: pointer to uint16_t VOC DATA
-  * @retval None
-  */
+ * @brief  Change raw data to human readable.
+ * @param  1: pointer to uint16_t VOC DATA
+ * @retval None
+ */
 void Get_VocData(uint16_t* pDataCO2 ,uint16_t* pDataVOC)
 {
   uint16_t co2, voc;
