@@ -117,13 +117,176 @@ int fputc(int ch, FILE *f)
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+void Test_PM25(void)
+{
+  PM25_StopAutoSend();
+  PM25_StartMeasurement();
+  HAL_Delay(100);
+
+  while (1) {
+    uint16_t pm25, pm10;
+    PM25_Read(&pm25, &pm10);
+    HAL_Delay(1000);
+  }
+}
+
+void Test_BigFont(void)
+{
+  POINT_COLOR=WHITE;
+  LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
+  while (1) {
+    POINT_COLOR=WHITE;
+    LCD_ShowString(10,80,320,96,96,"0123456789");
+    HAL_Delay(1000);
+    POINT_COLOR=RED;
+    LCD_ShowString(10,80,320,96,96,"9876543210");
+    HAL_Delay(1000);
+  }
+}
+
+void Test_SensorDataInAll(void)
+{
+  while (1) {
+    float h, t;
+    uint16_t co2, voc;
+    char str[32];
+
+    memset(str, 0, sizeof(str));
+    Get_VocData(&co2, &voc);
+    Get_HumiTemp(&h, &t);
+    S8_Read(&co2);
+
+
+    POINT_COLOR=WHITE;
+    LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
+    LCD_ShowString(10,80,320,32,32,"VOC:");
+    LCD_ShowString(10,120,320,32,32,"CO2:");
+    LCD_ShowString(10,160,320,32,32,"HUM:");
+    LCD_ShowString(10,200,320,32,32,"TEM:");
+
+    LCD_Fill(320,80,479,240,BLACK);
+    sprintf(str, "%dppm", voc);
+    LCD_ShowString(320,80,320,32,32,str);
+    sprintf(str, "%dppm", co2);
+    LCD_ShowString(320,120,320,32,32,str);
+    sprintf(str, "%.1f%%", h);
+    LCD_ShowString(320,160,320,32,32,str);
+    sprintf(str, "%.1f", t);
+    LCD_ShowString(320,200,320,32,32,str);
+
+    HAL_Delay(2000);
+  }
+
+}
+
+void Test_SensorDataOneByOne(void)
+{
+  while (1) {
+    float h, t;
+    uint16_t co2, voc;
+    char str[32];
+
+    memset(str, 0, sizeof(str));
+    Get_VocData(&co2, &voc);
+    Get_HumiTemp(&h, &t);
+    S8_Read(&co2);
+
+
+    static int ccc = 0;
+    int k = 0;
+    k = ccc % 4;
+    ccc += 1;
+
+    POINT_COLOR=WHITE;
+    LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
+    LCD_Fill(10,80,479,120,BLACK);
+
+    switch (k) {
+      case 0:
+        sprintf(str, "%dppb", voc);
+        LCD_ShowString(10,80,320,32,32,"VOC:");
+        LCD_ShowString(320,80,320,32,32,str);
+        break;
+      case 1:
+        sprintf(str, "%dppm", co2);
+        LCD_ShowString(10,80,320,32,32,"CO2:");
+        LCD_ShowString(320,80,320,32,32,str);
+        break;
+      case 2:
+        sprintf(str, "%.1f%%", h);
+        LCD_ShowString(10,80,320,32,32,"HUM:");
+        LCD_ShowString(320,80,320,32,32,str);
+        break;
+      case 3:
+        sprintf(str, "%.1f", t);
+        LCD_ShowString(10,80,320,32,32,"TEM:");
+        LCD_ShowString(320,80,320,32,32,str);
+        break;
+      default:
+        break;
+    }
+
+    HAL_Delay(2000);
+  }
+}
+
+void Test_Display(void)
+{
+  uint8_t x=0;
+  uint8_t k;
+
+  while(1)
+  {
+    POINT_COLOR=RED;
+    LCD_Switch_Off();
+
+    switch(x)
+    {
+      case 0: LCD_Clear(WHITE);  break;
+      case 1: LCD_Clear(BLACK);  break;
+      case 2: LCD_Clear(GBLUE);  break;
+      case 3: LCD_Clear(BRED);   break;
+      case 4: LCD_Clear(MAGENTA);break;
+      case 5: LCD_Clear(GREEN);  break;
+      case 6: LCD_Clear(CYAN);   break;
+      case 7: LCD_Clear(YELLOW); break;
+      case 8: LCD_Clear(BRRED);  break;
+      case 9: LCD_Clear(GRAY);   break;
+      case 10:LCD_Clear(LGRAY);  break;
+      case 11:LCD_Clear(BROWN);  break;
+    }
+
+    x++;
+    if(x==12)x=0;
+
+
+    LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
+    POINT_COLOR=BLUE;
+    LCD_ShowString(10,80,320,24,24,"FSMC-LCD TEST");
+    POINT_COLOR=WHITE;
+    LCD_ShowString(10,110,320,16,16,"Simon Gu");
+    POINT_COLOR=GREEN;
+    LCD_ShowString(10,150,300,12,12,"2017-6-28");
+
+    LCD_DrawBitmap(240, 160, ST_LOGO_1);
+
+    for(k=0; k<70; k++)
+    {
+      POINT_COLOR=RED;
+      LCD_Draw_Circle(120,240,10+k);
+      POINT_COLOR=BLUE;
+      LCD_Draw_Circle(360,80,10+k);
+    }
+    LCD_Switch_On();
+    LCD_Scroll_On();
+    HAL_Delay(1000);
+  }
+}
 
 /* USER CODE END 0 */
 
 int main(void)
 {
-  uint8_t x=0;
-  uint8_t k;
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -173,158 +336,32 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
 
-  printf("ILI9488 3.5-Inch CGD Test begin now...\r\n");
+  printf("HON Connected Air Stat...\r\n");
 
   LCD_Clear(BLACK);
+  POINT_COLOR=WHITE;
 
-  while (0) {
-    uint8_t buf[8];
-    memset(buf, 0, sizeof(buf));
-    HAL_UART_Transmit(&huart5, "Hello\r\n", 7, 0xFFFF);
-    HAL_UART_Receive(&huart5, buf, 1, 0xFFFF);
-    //HAL_UART_Transmit(&huart5, buf, 1, 0xFFFF);
-    printf("%c\r\n", buf[0]);
-    //HAL_Delay(100);
-  }
+  /* TEST CODE BEGIN */
+#if 0
+  Test_PM25();
+#endif
 
 #if 0
-  PM25_StopAutoSend();
-  PM25_StartMeasurement();
-  HAL_Delay(100);
-
-  while (0) {
-    uint16_t pm25, pm10;
-    PM25_Read(&pm25, &pm10);
-    HAL_Delay(1000);
-  }
+  Test_BigFont();
 #endif
 
-  POINT_COLOR=WHITE;
-  LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
-  //    LCD_ShowString(10,80,320,64,64,"0123456789");
-  while (1) {
-    POINT_COLOR=WHITE;
-    LCD_ShowString(10,80,320,96,96,"0123456789");
-    HAL_Delay(1000);
-    POINT_COLOR=RED;
-    LCD_ShowString(10,80,320,96,96,"9876543210");
-    HAL_Delay(1000);
-  }
+#if 0
+  Test_SensorDataInAll();
+#endif
 
-  while (1) {
-    float h, t;
-    uint16_t co2, voc;
-    char str[32];
-
-    memset(str, 0, sizeof(str));
-    Get_VocData(&co2, &voc);
-    Get_HumiTemp(&h, &t);
-    S8_Read(&co2);
-
+#if 0
+  Test_SensorDataOneByOne();
+#endif
 
 #if 1
-    POINT_COLOR=WHITE;
-    LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
-    LCD_ShowString(10,80,320,32,32,"VOC:");
-    LCD_ShowString(10,120,320,32,32,"CO2:");
-    LCD_ShowString(10,160,320,32,32,"HUM:");
-    LCD_ShowString(10,200,320,32,32,"TEM:");
-
-    LCD_Fill(320,80,479,240,BLACK);
-    sprintf(str, "%dppm", voc);
-    LCD_ShowString(320,80,320,32,32,str);
-    sprintf(str, "%dppm", co2);
-    LCD_ShowString(320,120,320,32,32,str);
-    sprintf(str, "%.1f%%", h);
-    LCD_ShowString(320,160,320,32,32,str);
-    sprintf(str, "%.1f", t);
-    LCD_ShowString(320,200,320,32,32,str);
-#else
-    static int ccc = 0;
-    int k = 0;
-    k = ccc % 4;
-    ccc += 1;
-
-    POINT_COLOR=WHITE;
-    LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
-    LCD_Fill(10,80,479,120,BLACK);
-
-    switch (k) {
-      case 0:
-        sprintf(str, "%dppb", voc);
-        LCD_ShowString(10,80,320,32,32,"VOC:");
-        LCD_ShowString(320,80,320,32,32,str);
-        break;
-      case 1:
-        sprintf(str, "%dppm", co2);
-        LCD_ShowString(10,80,320,32,32,"CO2:");
-        LCD_ShowString(320,80,320,32,32,str);
-        break;
-      case 2:
-        sprintf(str, "%.1f%%", h);
-        LCD_ShowString(10,80,320,32,32,"HUM:");
-        LCD_ShowString(320,80,320,32,32,str);
-        break;
-      case 3:
-        sprintf(str, "%.1f", t);
-        LCD_ShowString(10,80,320,32,32,"TEM:");
-        LCD_ShowString(320,80,320,32,32,str);
-        break;
-      default:
-        break;
-    }
+  Test_Display();
 #endif
-
-    HAL_Delay(2000);
-  }
-
-
-  while(1)
-  {
-    POINT_COLOR=RED;
-    LCD_Switch_Off();
-
-    switch(x)
-    {
-      case 0: LCD_Clear(WHITE);  break;
-      case 1: LCD_Clear(BLACK);  break;
-      case 2: LCD_Clear(GBLUE);  break;
-      case 3: LCD_Clear(BRED);   break;
-      case 4: LCD_Clear(MAGENTA);break;
-      case 5: LCD_Clear(GREEN);  break;
-      case 6: LCD_Clear(CYAN);   break;
-      case 7: LCD_Clear(YELLOW); break;
-      case 8: LCD_Clear(BRRED);  break;
-      case 9: LCD_Clear(GRAY);   break;
-      case 10:LCD_Clear(LGRAY);  break;
-      case 11:LCD_Clear(BROWN);  break;
-    }
-
-    x++;
-    if(x==12)x=0;
-
-
-    LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
-    POINT_COLOR=BLUE;
-    LCD_ShowString(10,80,320,24,24,"FSMC-LCD TEST");
-    POINT_COLOR=WHITE;
-    LCD_ShowString(10,110,320,16,16,"Simon Gu");
-    POINT_COLOR=GREEN;
-    LCD_ShowString(10,150,300,12,12,"2017-6-28");
-
-    LCD_DrawBitmap(240, 160, ST_LOGO_1);
-
-    for(k=0; k<70; k++)
-    {
-      POINT_COLOR=RED;
-      LCD_Draw_Circle(120,240,10+k);
-      POINT_COLOR=BLUE;
-      LCD_Draw_Circle(360,80,10+k);
-    }
-    LCD_Switch_On();
-    LCD_Scroll_On();
-    HAL_Delay(1000);
-  }
+  /* TEST CODE END */
 
 
   /* USER CODE END 2 */
