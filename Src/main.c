@@ -73,6 +73,8 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim3;
+
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 
@@ -93,6 +95,7 @@ SRAM_HandleTypeDef hsram1;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void MX_TIM3_Init(void);
 static void MX_GPIO_Init(void);
 static void MX_FMC_Init(void);
 static void MX_SPI1_Init(void);
@@ -310,6 +313,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_FMC_Init();
+  MX_TIM3_Init();
   MX_SPI1_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
@@ -341,6 +345,14 @@ int main(void)
   LCD_Clear(BLACK);
   POINT_COLOR=WHITE;
 
+  /*##-2- Start the TIM Base generation in interrupt mode ####################*/
+  /* Start Channel1 */
+  if(HAL_TIM_Base_Start_IT(&htim3) != HAL_OK)
+  {
+    /* Starting Error */
+    Error_Handler();
+  }
+
   /* TEST CODE BEGIN */
 #if 0
   Test_PM25();
@@ -363,19 +375,18 @@ int main(void)
 #endif
   /* TEST CODE END */
 
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
+    /* USER CODE END 3 */
   }
-  /* USER CODE END 3 */
+  /* USER CODE END WHILE */
 
 }
 
@@ -440,6 +451,47 @@ void SystemClock_Config(void)
 
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+}
+
+/* TIM3 init function */
+static void MX_TIM3_Init(void)
+{
+  /*##-1- Configure the TIM peripheral #######################################*/
+  /* -----------------------------------------------------------------------
+    In this example TIM3 input clock (TIM3CLK) is set to 2 * APB1 clock (PCLK1),
+    since APB1 prescaler is different from 1.
+      TIM3CLK = 2 * PCLK1
+      PCLK1 = HCLK / 4
+      => TIM3CLK = HCLK / 2 = SystemCoreClock /2
+    To get TIM3 counter clock at 10 KHz, the Prescaler is computed as following:
+    Prescaler = (TIM3CLK / TIM3 counter clock) - 1
+    Prescaler = ((SystemCoreClock /2) /10 KHz) - 1
+
+    Note:
+     SystemCoreClock variable holds HCLK frequency and is defined in system_stm32f4xx.c file.
+     Each time the core clock (HCLK) changes, user had to update SystemCoreClock
+     variable value. Otherwise, any configuration based on this variable will be incorrect.
+     This variable is updated in three ways:
+      1) by calling CMSIS function SystemCoreClockUpdate()
+      2) by calling HAL API function HAL_RCC_GetSysClockFreq()
+      3) each time HAL_RCC_ClockConfig() is called to configure the system clock frequency
+  ----------------------------------------------------------------------- */
+
+  /* Compute the prescaler value to have TIM3 counter clock equal to 10 KHz */
+  uint32_t uwPrescalerValue = (uint32_t) ((SystemCoreClock /2) / 10000) - 1;
+
+  TIM_ClockConfigTypeDef sClockSourceConfig;
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  htim3.Instance = TIM3;
+  htim3.Init.Period = 10000 - 1;
+  htim3.Init.Prescaler = uwPrescalerValue;
+  htim3.Init.ClockDivision = 0;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
 }
 
 /* I2C1 init function */
@@ -683,6 +735,16 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @param  htim: TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  printf("T");
+  //BSP_LED_Toggle(LED4);
+}
 
 /* USER CODE END 4 */
 
