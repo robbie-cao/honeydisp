@@ -480,6 +480,10 @@ void LCD_ShowChar(u16 x,u16 y,u8 num,u8 size,u8 mode)
           num = num - '0';
           csize=(size/8+((size%8)?1:0))*42;
           LCD_Fill(x,y,x+42-1,y+size-1,BLACK);
+        } else if (size == 96) {
+          num = num - '0';
+          csize=(size/8+((size%8)?1:0))*72;
+          LCD_Fill(x,y,x+72-1,y+size-1,BLACK);
         } else if (size == 128) {
           num = num - '0';
           csize=(size/8+((size%8)?1:0))*83;
@@ -496,6 +500,7 @@ void LCD_ShowChar(u16 x,u16 y,u8 num,u8 size,u8 mode)
 		else if(size==24)temp=asc2_2412[num][t];	//调用2412字体
 		else if(size==32)temp=asc2_3216[num][t];	//调用3216字体
 		else if(size==64)temp=asc2_6432[num][t];	//调用3216字体
+		else if(size==96)temp=asc2_96x72[num][t];	//调用3216字体
 		else if(size==128)temp=asc2_128[num][t];	//调用3216字体
 		else return;								//没有的字库
 		for(t1=0;t1<8;t1++)
@@ -574,7 +579,15 @@ void LCD_ShowString(u16 x,u16 y, u16 width, u16 height, u8 size,u8 *p)
         if(x>=width){x=x0;y+=size;}
         if(y>=height)break;//退出
         LCD_ShowChar(x,y,*p,size,1);
+        if (size == 64) {
+          x += 42;
+        } else if (size == 96) {
+          x += 72;
+        } else if (size == 128) {
+          x += 83;
+        } else {
         x+=size/2;
+        }
         p++;
     }
 }
