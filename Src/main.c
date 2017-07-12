@@ -79,6 +79,7 @@ I2C_HandleTypeDef hi2c2;
 SPI_HandleTypeDef hspi1;
 
 UART_HandleTypeDef huart4;
+UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
@@ -99,6 +100,7 @@ static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_UART4_Init(void);
+static void MX_UART5_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_I2C2_Init(void);
 
@@ -150,6 +152,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_UART4_Init();
+  MX_UART5_Init();
   MX_I2C1_Init();
   MX_I2C2_Init();
 
@@ -174,26 +177,37 @@ int main(void)
 
   LCD_Clear(BLACK);
 
+  while (0) {
+    uint8_t buf[8];
+    memset(buf, 0, sizeof(buf));
+    HAL_UART_Transmit(&huart5, "Hello\r\n", 7, 0xFFFF);
+    HAL_UART_Receive(&huart5, buf, 1, 0xFFFF);
+    //HAL_UART_Transmit(&huart5, buf, 1, 0xFFFF);
+    printf("%c\r\n", buf[0]);
+    //HAL_Delay(100);
+  }
 
+#if 0
   PM25_StopAutoSend();
   PM25_StartMeasurement();
   HAL_Delay(100);
 
-  while (1) {
+  while (0) {
     uint16_t pm25, pm10;
     PM25_Read(&pm25, &pm10);
     HAL_Delay(1000);
   }
+#endif
 
   POINT_COLOR=WHITE;
   LCD_ShowString(10,40,320,32,32,"Honeywell IAQ");
   //    LCD_ShowString(10,80,320,64,64,"0123456789");
   while (1) {
     POINT_COLOR=WHITE;
-    LCD_ShowString(10,80,320,128,128,"0123456789");
+    LCD_ShowString(10,80,320,96,96,"0123456789");
     HAL_Delay(1000);
     POINT_COLOR=RED;
-    LCD_ShowString(10,80,320,128,128,"9876543210");
+    LCD_ShowString(10,80,320,96,96,"9876543210");
     HAL_Delay(1000);
   }
 
@@ -237,7 +251,7 @@ int main(void)
 
     switch (k) {
       case 0:
-        sprintf(str, "%dppm", voc);
+        sprintf(str, "%dppb", voc);
         LCD_ShowString(10,80,320,32,32,"VOC:");
         LCD_ShowString(320,80,320,32,32,str);
         break;
@@ -468,6 +482,25 @@ static void MX_UART4_Init(void)
   huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart4.Init.OverSampling = UART_OVERSAMPLING_16;
   if (HAL_UART_Init(&huart4) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* UART5 init function */
+static void MX_UART5_Init(void)
+{
+
+  huart5.Instance = UART5;
+  huart5.Init.BaudRate = 9600;
+  huart5.Init.WordLength = UART_WORDLENGTH_8B;
+  huart5.Init.StopBits = UART_STOPBITS_1;
+  huart5.Init.Parity = UART_PARITY_NONE;
+  huart5.Init.Mode = UART_MODE_TX_RX;
+  huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart5.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart5) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
