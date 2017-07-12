@@ -307,28 +307,59 @@ void Test_SensorAutoDisp(void)
     S8_Read(&co2);
 
     POINT_COLOR=WHITE;
-    LCD_Fill(10,80,479,80+40+96,BLACK);
 
     switch (sensor_next) {
     case 0:
       sprintf(str, "%d", voc);
+      LCD_Fill(10,80,479,80+40,BLACK);
       LCD_ShowString(10,80,320,32,32,"VOC(ppb)");
+      LCD_Fill(10,80+40,479,80+40+96,BLACK);
       LCD_ShowString(10,120,320,96,96, str);
+
+      LCD_Fill(30,80+40+100,479,80+40+100+40,BLACK);
+      LCD_Draw_Circle(50,80+40+100+20,15);
+      LCD_Draw_Circle(90,80+40+100+20,10);
+      LCD_Draw_Circle(130,80+40+100+20,10);
+      LCD_Draw_Circle(170,80+40+100+20,10);
       break;
     case 1:
       sprintf(str, "%d", co2);
+      LCD_Fill(10,80,479,80+40,BLACK);
       LCD_ShowString(10,80,320,32,32,"CO2(ppm)");
+      LCD_Fill(10,80+40,479,80+40+96,BLACK);
       LCD_ShowString(10,120,320,96,96,str);
+
+      LCD_Fill(30,80+40+100,479,80+40+100+40,BLACK);
+      LCD_Draw_Circle(50,80+40+100+20,10);
+      LCD_Draw_Circle(90,80+40+100+20,15);
+      LCD_Draw_Circle(130,80+40+100+20,10);
+      LCD_Draw_Circle(170,80+40+100+20,10);
       break;
     case 2:
       sprintf(str, "%d", (int)h);
-      LCD_ShowString(10,80,320,32,32,"Humidity(%%)");
+      LCD_Fill(10,80,479,80+40,BLACK);
+      LCD_ShowString(10,80,320,32,32,"Humidity(%)");
+      LCD_Fill(10,80+40,479,80+40+96,BLACK);
       LCD_ShowString(10,120,320,96,96,str);
+
+      LCD_Fill(30,80+40+100,479,80+40+100+40,BLACK);
+      LCD_Draw_Circle(50,80+40+100+20,10);
+      LCD_Draw_Circle(90,80+40+100+20,10);
+      LCD_Draw_Circle(130,80+40+100+20,15);
+      LCD_Draw_Circle(170,80+40+100+20,10);
       break;
     case 3:
       sprintf(str, "%d", (int)t);
+      LCD_Fill(10,80,479,80+40,BLACK);
       LCD_ShowString(10,80,320,32,32,"Temperature(C)");
+      LCD_Fill(10,80+40,479,80+40+96,BLACK);
       LCD_ShowString(10,120,320,96,96,str);
+
+      LCD_Fill(30,80+40+100,479,80+40+100+40,BLACK);
+      LCD_Draw_Circle(50,80+40+100+20,10);
+      LCD_Draw_Circle(90,80+40+100+20,10);
+      LCD_Draw_Circle(130,80+40+100+20,10);
+      LCD_Draw_Circle(170,80+40+100+20,15);
       break;
     default:
       break;
