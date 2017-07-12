@@ -1,7 +1,7 @@
 #include <string.h>
 #include "pm25.h"
 
-extern UART_HandleTypeDef huart3;
+extern UART_HandleTypeDef huart4;
 
 uint8_t PM25_EnableAutoSend(void)
 {
@@ -9,8 +9,8 @@ uint8_t PM25_EnableAutoSend(void)
   uint8_t rcv[8];
 
   memset(rcv, 0, sizeof(rcv));
-  HAL_UART_Transmit(&huart3, cmd, 4, 0xFFFF);
-  HAL_UART_Receive(&huart3, rcv, 2, 0xFFFF);
+  HAL_UART_Transmit(&huart4, cmd, 4, 0xFFFF);
+  HAL_UART_Receive(&huart4, rcv, 2, 0xFFFF);
   for (int i = 0; i < 2; i++) {
     printf("0x%02x ", rcv[i]);
   }
@@ -28,8 +28,8 @@ uint8_t PM25_StopAutoSend(void)
   uint8_t rcv[8];
 
   memset(rcv, 0, sizeof(rcv));
-  HAL_UART_Transmit(&huart3, cmd, 4, 0xFFFF);
-  HAL_UART_Receive(&huart3, rcv, 2, 0xFFFF);
+  HAL_UART_Transmit(&huart4, cmd, 4, 0xFFFF);
+  HAL_UART_Receive(&huart4, rcv, 2, 0xFFFF);
   for (int i = 0; i < 2; i++) {
     printf("0x%02x ", rcv[i]);
   }
@@ -47,8 +47,8 @@ uint8_t PM25_StartMeasurement(void)
   uint8_t rcv[8];
 
   memset(rcv, 0, sizeof(rcv));
-  HAL_UART_Transmit(&huart3, cmd, 4, 0xFFFF);
-  HAL_UART_Receive(&huart3, rcv, 2, 0xFFFF);
+  HAL_UART_Transmit(&huart4, cmd, 4, 0xFFFF);
+  HAL_UART_Receive(&huart4, rcv, 2, 0xFFFF);
   for (int i = 0; i < 2; i++) {
     printf("0x%02x ", rcv[i]);
   }
@@ -66,8 +66,8 @@ uint8_t PM25_StopMeasurement(void)
   uint8_t rcv[8];
 
   memset(rcv, 0, sizeof(rcv));
-  HAL_UART_Transmit(&huart3, cmd, 4, 0xFFFF);
-  HAL_UART_Receive(&huart3, rcv, 2, 0xFFFF);
+  HAL_UART_Transmit(&huart4, cmd, 4, 0xFFFF);
+  HAL_UART_Receive(&huart4, rcv, 2, 0xFFFF);
   for (int i = 0; i < 2; i++) {
     printf("0x%02x ", rcv[i]);
   }
@@ -85,8 +85,8 @@ uint8_t PM25_Read(uint16_t *pm25, uint16_t *pm10)
   uint8_t rcv[8];
 
   memset(rcv, 0, sizeof(rcv));
-  HAL_UART_Transmit(&huart3, cmd, 4, 0xFFFF);
-  HAL_UART_Receive(&huart3, rcv, 8, 0xFFFF);
+  HAL_UART_Transmit(&huart4, cmd, 4, 0xFFFF);
+  HAL_UART_Receive(&huart4, rcv, 8, 0xFFFF);
   for (int i = 0; i < 8; i++) {
     printf("0x%02x ", rcv[i]);
   }
