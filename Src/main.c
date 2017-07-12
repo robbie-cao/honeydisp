@@ -88,6 +88,10 @@ UART_HandleTypeDef huart3;
 
 SRAM_HandleTypeDef hsram1;
 
+uint32_t tim3_count = 0;
+uint8_t sensor_current = 0xFF;
+uint8_t sensor_next = 0;
+
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -286,6 +290,53 @@ void Test_Display(void)
   }
 }
 
+void Test_SensorAutoDisp(void)
+{
+  while (1) {
+    float h, t;
+    uint16_t co2, voc;
+    char str[32];
+
+    if (sensor_current == sensor_next) {
+      continue ;
+    }
+
+    memset(str, 0, sizeof(str));
+    Get_VocData(&co2, &voc);
+    Get_HumiTemp(&h, &t);
+    S8_Read(&co2);
+
+    POINT_COLOR=WHITE;
+    LCD_Fill(10,80,479,80+40+96,BLACK);
+
+    switch (sensor_next) {
+    case 0:
+      sprintf(str, "%d", voc);
+      LCD_ShowString(10,80,320,32,32,"VOC(ppb)");
+      LCD_ShowString(10,120,320,96,96, str);
+      break;
+    case 1:
+      sprintf(str, "%d", co2);
+      LCD_ShowString(10,80,320,32,32,"CO2(ppm)");
+      LCD_ShowString(10,120,320,96,96,str);
+      break;
+    case 2:
+      sprintf(str, "%d", (int)h);
+      LCD_ShowString(10,80,320,32,32,"Humidity(%%)");
+      LCD_ShowString(10,120,320,96,96,str);
+      break;
+    case 3:
+      sprintf(str, "%d", (int)t);
+      LCD_ShowString(10,80,320,32,32,"Temperature(C)");
+      LCD_ShowString(10,120,320,96,96,str);
+      break;
+    default:
+      break;
+    }
+    sensor_current = sensor_next;
+  }
+}
+
 /* USER CODE END 0 */
 
 int main(void)
@@ -355,6 +406,10 @@ int main(void)
 
   /* TEST CODE BEGIN */
 #if 0
+  Test_Display();
+#endif
+
+#if 0
   Test_PM25();
 #endif
 
@@ -371,8 +426,9 @@ int main(void)
 #endif
 
 #if 1
-  Test_Display();
+  Test_SensorAutoDisp();
 #endif
+
   /* TEST CODE END */
 
   /* USER CODE END 2 */
@@ -742,7 +798,15 @@ static void MX_GPIO_Init(void)
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  printf("T");
+  printf(".");
+  tim3_count++;
+  if (tim3_count >= 3) {
+    sensor_next += 1;
+    if (sensor_next >= 4) {
+      sensor_next = 0;
+    }
+    tim3_count = 0;
+  }
   //BSP_LED_Toggle(LED4);
 }
 
