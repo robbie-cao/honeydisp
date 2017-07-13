@@ -78,7 +78,7 @@ u32 LCD_ReadPoint(u16 x,u16 y)
 {
  	u16 r=0,g=0,b=0;
 	if(x>=lcddev.width||y>=lcddev.height)return 0;	//超过了范围,直接返回
-	LCD_SetCursor(x,x, y, y);
+	LCD_SetCursor(x,y,x,y);	    
 	LCD_WR_REG(0X2E); // 发送读GRAM指令
  	r=LCD_RD_DATA();								//dummy Read
 	opt_delay(2);
@@ -107,9 +107,9 @@ void LCD_Switch_Off(void)
         LCD_WR_DATA(0);
 }
 
-void LCD_Scroll_On(void)
+void LCD_Scroll_On(uint8_t mode)
 {
-     uint16_t index;
+        uint16_t index;
         LCD_WR_REG(0x33);
         LCD_WR_DATA(0);
         LCD_WR_DATA(0);
@@ -118,14 +118,27 @@ void LCD_Scroll_On(void)
         LCD_WR_DATA(0);
         LCD_WR_DATA(0);
 
-        for(index=0; index<480;index++)
+        if(mode==LEFT)
         {
+           for(index=0; index<480;index++)
+          {
            LCD_WR_REG(0x37);
            LCD_WR_DATA((index>>8)&0xFF);
            LCD_WR_DATA(index & 0xFF);
            LCD_Delay(10000);
+          }
         }
-
+        else
+        {
+          for(index=480; index>0;index--)
+          {
+           LCD_WR_REG(0x37);
+           LCD_WR_DATA((index>>8)&0xFF);
+           LCD_WR_DATA(index & 0xFF);
+           LCD_Delay(10000);
+          }
+          
+        }
 }
 
 void LCD_Switch_On(void)
@@ -395,7 +408,7 @@ void LCD_Color_Fill(u16 sx,u16 sy,u16 ex,u16 ey,u16 *color)
 	height=ey-sy+1;			//高度
 	for(i=0;i<height;i++)
 	{
-		LCD_SetCursor(sx,sx,sy+i,sy+i);   	//设置光标位置
+		LCD_SetCursor(sx,sy+i,sx,sy+i);   	//设置光标位置 
 		LCD_WriteRAM_Prepare();     //开始写入GRAM
 		for(j=0;j<width;j++)LCD->LCD_RAM=color[i*width+j];//写入数据
 	}
@@ -520,6 +533,36 @@ void LCD_ShowChar(u16 x,u16 y,u8 num,u8 size,u8 mode)
 		}
 	}
 }
+void LCD_ShowDigit(u16 x,u16 y,u8 num,u16 size,u8 mode)
+{  							  
+        u16 temp,t1,t;
+	u16 y0=y;
+	u16 csize=(size/8+((size%8)?1:0))*(size/2);		//得到字体一个字符对应点阵集所占的字节数	
+
+ 	num=num-0x30;
+ 
+	for(t=0;t<csize;t++)
+	{   
+	       temp=digit[num][t];
+ 
+		for(t1=0;t1<8;t1++)
+		{			    
+			if(temp&0x80)LCD_Fast_DrawPoint(x,y,POINT_COLOR);
+			else if(mode==0)LCD_Fast_DrawPoint(x,y,BACK_COLOR);
+			temp<<=1;
+			y++;
+			if(y>=lcddev.height)return;		//超区域了
+			if((y-y0)==size)
+			{
+				y=y0;
+				x++;
+				if(x>=lcddev.width)return;	//超区域了
+				break;
+			}
+		}  	 
+	}  	    	   	 	  
+}   
+
 
 u32 LCD_Pow(u8 m,u8 n)
 {
@@ -613,7 +656,7 @@ void LCD_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint16_t *pBmp)
   height = *(pBmp + 11);
   height |= (*(pBmp + 12)) << 16;
 
-  printf("h: %d, w: %d\r\n", width, height);
+  printf("w: %d, h: %d\r\n", width, height);
 
   uint32_t index = 0, size = 0;
 
@@ -632,8 +675,8 @@ void LCD_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint16_t *pBmp)
 
   LCD_SetCursor(Xpos, Ypos, Xpos + width - 1, Ypos + height - 1);
 
- // LCD_WR_REG(0x36);
- //  LCD_WR_DATA(0x20);
+//  LCD_WR_REG(0x36);
+//  LCD_WR_DATA(0x20);
 
   LCD_WR_REG(0x2C);
 
@@ -652,15 +695,45 @@ void LCD_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint16_t *pBmp)
 
 }
 
+void LCD_ShowImage(uint16_t Xpos, uint16_t Ypos, uint16_t width, uint16_t height, uint8_t *pBmp)
+{
+  uint8_t *p = pBmp;
+  uint16_t data;
+  LCD_Set_Window(Xpos, Ypos, width, height);
+
+   LCD_WR_REG(0x2C);
 
 
+  for (int i = 0; i < height; i++)
+  {
+     for(int k=0; k < width; k++)
+     {
+
+         data =(*p)|((*(p+1))<<8);
+         LCD_Fast_DrawPoint(Xpos+k,Ypos+i,data);
+         p+=2;
+     }
+   }
+
+}
+
+void LCD_MaskImage(uint16_t Xpos, uint16_t Ypos, uint16_t width, uint16_t height, uint16_t color)
+{
+  LCD_Set_Window(Xpos, Ypos, width, height);
+  LCD_WR_REG(0x2C);
 
 
+  for (int i = 0; i < width/2; i++)
+  {
+     for(int k=0; k < height; k++)
+     {
+         LCD_Fast_DrawPoint(Xpos+i,Ypos+k,color);
+         LCD_Fast_DrawPoint(Xpos+width-i-1,Ypos+k,color);
+         LCD_Delay(100);
+     }
+   }
 
-
-
-
-
+}
 
 
 

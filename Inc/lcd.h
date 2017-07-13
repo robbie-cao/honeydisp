@@ -33,7 +33,8 @@ extern u32        BACK_COLOR;  // 背景颜色.默认为白色
 
 
 #define SOFT_RESET    0x1
-
+#define LEFT          0
+#define RIGHT         1
 
 
 typedef struct
@@ -93,7 +94,7 @@ void LCD_DisplayOn(void);
 void LCD_DisplayOff(void);
 void LCD_Switch_Off(void);
 void LCD_Switch_On(void);
-void LCD_Scroll_On(void);
+void LCD_Scroll_On(uint8_t mode);
 void LCD_Clear(u32 Color);
 void LCD_SetCursor(u16 x1, u16 y1, u16 x2, u16 y2);
 void LCD_DrawPoint(u16 x, u16 y);
@@ -119,7 +120,10 @@ void LCD_Display_Dir(u8 dir);
 void LCD_Set_Window(u16 sx, u16 sy, u16 width, u16 height);	//设置窗口
 
 void LCD_Delay(volatile unsigned int delay);
-
+void LCD_WR_REG(volatile uint16_t regval);
+void LCD_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint16_t *pBmp);
+void LCD_ShowImage(uint16_t Xpos, uint16_t Ypos, uint16_t width, uint16_t height, uint8_t *pBmp);
+void LCD_MaskImage(uint16_t Xpos, uint16_t Ypos, uint16_t width, uint16_t height, uint16_t color);
 
 #endif
 

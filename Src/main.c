@@ -275,7 +275,7 @@ void Test_Display(void)
     POINT_COLOR=GREEN;
     LCD_ShowString(10,150,300,12,12,"2017-6-28");
 
-    LCD_DrawBitmap(240, 160, ST_LOGO_1);
+    LCD_DrawBitmap(240, 160, (uint16_t *)ST_LOGO_1);
 
     for(k=0; k<70; k++)
     {
@@ -285,7 +285,7 @@ void Test_Display(void)
       LCD_Draw_Circle(360,80,10+k);
     }
     LCD_Switch_On();
-    LCD_Scroll_On();
+    LCD_Scroll_On(LEFT);
     HAL_Delay(1000);
   }
 }
@@ -454,6 +454,12 @@ int main(void)
 
 #if 0
   Test_SensorDataOneByOne();
+#endif
+
+#if 0
+  extern const unsigned char HoneywellLogo420x72_bmp[];
+  LCD_DrawBitmap(10, 20, HoneywellLogo420x72_bmp);
+  while (1);
 #endif
 
 #if 1

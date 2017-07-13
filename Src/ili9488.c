@@ -590,7 +590,7 @@ void ILI9488_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint8_t *pBmp)
   height = *(uint16_t *) (pBmp + 22);
   height |= (*(uint16_t *) (pBmp + 24)) << 16;
 
-  printf("h: %d, w: %d\r\n", width, height);
+  printf("w: %d, h: %d\r\n", width, height);
 
   uint32_t index = 0, size = 0;
   /* Read bitmap size */
