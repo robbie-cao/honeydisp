@@ -93,6 +93,13 @@ uint32_t tim3_count = 0;
 uint8_t sensor_current = 0xFF;
 uint8_t sensor_next = 0;
 
+uint8_t one_byte = 'X';
+uint8_t recv_comm_buf[COMM_BUF_MAX];
+uint8_t recv_comm_idx;
+uint8_t start_rcv_timer;
+uint8_t rcv_tim_delay;
+uint8_t comm_rcv_flag;
+
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -410,6 +417,12 @@ void Test_SensorAutoDisp(void)
   }
 }
 
+/* Process the incoming command, one piece at a time */
+void Comm_Process(void)
+{
+  printf("%s\r\n", recv_comm_buf);
+}
+
 /* USER CODE END 0 */
 
 int main(void)
@@ -478,11 +491,21 @@ int main(void)
   }
 
   /* TEST CODE BEGIN */
+  printf("Starting...\r\n");
+  HAL_UART_Receive_IT(&huart3, &one_byte, 1);
+  while (1) {
+    if(comm_rcv_flag)
+    {
+      Comm_Process();
+      comm_rcv_flag = 0;
+    }
+  }
+
 #if 0
   Test_Display();
 #endif
 
-#if 1
+#if 0
   Test_LogoAndFonts();
 #endif
 
@@ -784,6 +807,15 @@ static void MX_USART3_UART_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
+    /* Initialize recv_comm_buf */
+    for(int i=0;i<COMM_BUF_MAX;i++)
+    {
+        recv_comm_buf[i] = 0;
+    }
+    recv_comm_idx = 0;
+    start_rcv_timer = 0;
+    rcv_tim_delay = 0;
+    comm_rcv_flag = 0;
 }
 /* FMC initialization function */
 static void MX_FMC_Init(void)
@@ -884,7 +916,71 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
     tim3_count = 0;
   }
-  //BSP_LED_Toggle(LED4);
+}
+
+/**
+  * @brief  Tx Transfer completed callback
+  * @param  UartHandle: UART handle.
+  * @note   This example shows a simple way to report end of IT Tx transfer, and
+  *         you can add your own implementation.
+  * @retval None
+  */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
+{
+  /* Set transmission flag: transfer complete*/
+
+}
+
+/**
+  * @brief  Rx Transfer completed callback
+  * @param  UartHandle: UART handle
+  * @note   This example shows a simple way to report end of IT Rx transfer, and
+  *         you can add your own implementation.
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
+{
+  /* Set transmission flag: transfer complete*/
+//  printf("%c", one_byte);
+  if(!comm_rcv_flag)
+  {
+    recv_comm_buf[recv_comm_idx++] = one_byte;
+    if(recv_comm_idx == COMM_BUF_MAX)
+    {
+      recv_comm_idx = 0;
+    }
+  }
+  start_rcv_timer = 1;
+  rcv_tim_delay = 0;
+  HAL_UART_Receive_IT(&huart3, &one_byte, 1);
+
+}
+
+/**
+  * @brief  UART error callbacks
+  * @param  UartHandle: UART handle
+  * @note   This example shows a simple way to report transfer error, and you can
+  *         add your own implementation.
+  * @retval None
+  */
+ void HAL_UART_ErrorCallback(UART_HandleTypeDef *UartHandle)
+{
+  /* Turn LED3 on: Transfer error in reception/transmission process */
+  //BSP_LED_On(LED3);
+}
+
+void Timer_1MS_ISR(void)
+{
+  /* UART end of receive check */
+  if(start_rcv_timer)
+  {
+    rcv_tim_delay++;
+    if(rcv_tim_delay >= REC_TIM_DELAY)
+    {
+      start_rcv_timer = 0;
+      comm_rcv_flag = 1;
+    }
+  }
 }
 
 /* USER CODE END 4 */

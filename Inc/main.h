@@ -45,6 +45,9 @@
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
+#define COMM_BUF_MAX    16
+#define REC_TIM_DELAY           5
+
 
 /* USER CODE BEGIN Private defines */
 
