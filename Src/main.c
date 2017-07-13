@@ -42,6 +42,7 @@
 //#include "ili9488.h"
 #include "st_logo1.h"
 #include "lcd.h"
+#include "logo.h"
 
 
 //extern FontDef_t Font_7x10;
@@ -290,6 +291,47 @@ void Test_Display(void)
   }
 }
 
+void Test_LogoAndFonts(void)
+{
+  int k = 0;
+  while (1) {
+    POINT_COLOR=WHITE;
+    //          LCD_Switch_Off();
+
+    LCD_ShowImage(30, 124, 420, 72, (uint8_t*)logo);
+    HAL_Delay(2000);
+    LCD_Clear(BLACK);
+
+#if 1
+    POINT_COLOR=WHITE;
+    for(k=0;k<4;k++)
+    {
+      LCD_ShowDigit(48+k*96,64,0x32+k,192,1);
+    }
+    HAL_Delay(2000);
+    LCD_Scroll_On(LEFT);
+
+    LCD_Clear(BLACK);
+    POINT_COLOR=RED;
+    for(k=0;k<4;k++)
+    {
+      LCD_ShowDigit(48+k*96,64,0x36+k,192,1);
+    }
+    HAL_Delay(2000);
+    LCD_Scroll_On(LEFT);
+
+#endif
+    //              LCD_Switch_On();
+
+
+    LCD_Clear(BLACK);
+    LCD_ShowImage(30, 124, 420, 72, (uint8_t*)logo);
+    LCD_MaskImage(30,124,420,72, BLACK);
+    HAL_Delay(2000);
+  }
+
+}
+
 void Test_SensorAutoDisp(void)
 {
   while (1) {
@@ -440,6 +482,10 @@ int main(void)
   Test_Display();
 #endif
 
+#if 1
+  Test_LogoAndFonts();
+#endif
+
 #if 0
   Test_PM25();
 #endif
@@ -454,12 +500,6 @@ int main(void)
 
 #if 0
   Test_SensorDataOneByOne();
-#endif
-
-#if 0
-  extern const unsigned char HoneywellLogo420x72_bmp[];
-  LCD_DrawBitmap(10, 20, HoneywellLogo420x72_bmp);
-  while (1);
 #endif
 
 #if 1
