@@ -101,7 +101,7 @@ uint8_t rcv_tim_delay;
 uint8_t comm_rcv_flag;
 
 float g_humidity = 0.0, g_temperature = 0.0;
-uint16_t g_co2 = 500, g_voc = 0, g_pm25 = 50, g_pm10 = 50;
+uint16_t g_co2 = 500, g_voc = 50, g_pm25 = 50, g_pm10 = 50;
 
 typedef struct LCD_Screen
 {
@@ -179,117 +179,6 @@ void IAQ_Init(void)
 
 /* USER CODE BEGIN 5 */
 
-void Test_SensorAutoDisp2(void)
-{
-  float curval;
-  uint16_t myval;
-  uint8_t bit_width;
-  char buf[4]={0};
-
-  POINT_COLOR=WHITE;
-  //          LCD_Switch_Off();
-
-  LCD_ShowImage(LOGO_XPOS, LOGO_YPOS, LOGO_WIDTH, LOGO_HEIGHT, (uint8_t*)logo);
-  HAL_Delay(2000);
-  LCD_Clear(BLACK);
-
-  IAQ_Init();
-  Comm_Init();
-  PM25_StopAutoSend();
-  PM25_StartMeasurement();
-  HAL_Delay(100);
-
-  while (1) {
-    if(comm_rcv_flag)
-    {
-      Comm_Process();
-      comm_rcv_flag = 0;
-      Comm_Response();
-    }
-    if (sensor_current == sensor_next) {
-      continue ;
-    }
-
-    Get_VocData(&g_co2, &g_voc);
-    Get_HumiTemp(&g_humidity, &g_temperature);
-    S8_Read(&g_co2);
-    PM25_Read(&g_pm25, &g_pm10);
-
-    LCD_Clear(BLACK);
-    POINT_COLOR=WHITE;
-
-            memset(buf, 0, sizeof(buf));
-            LCD_ShowImage(ICON_SENSOR_XPOS, ICON_SENSOR_YPOS,
-                          ICON_SENSOR_WIDTH, ICON_SENSOR_HEIGHT, (uint8_t*)screen[sensor_next].cur_icon);
-//            LCD_ShowSlide(screen[sensor_next].cur_index);
-
-    switch (sensor_next) {
-    case 0:
-                curval=g_temperature;
-                sprintf(buf,"%3.1f",curval);
-                if(curval<0) //Negative value
-                {
-                   LCD_ShowChar(DIGIT_XPOS, DIGIT_YPOS, '-', 32, 1);
-                }
-                else if(curval>=0 && curval<10)
-                {
-                   bit_width=2;
-                }else if(curval>=10 && curval<100)
-                {
-                   bit_width=3;
-                }
-                LCD_ShowDigtStr(buf, 1, bit_width);
-      break;
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-      if (sensor_next == 1) {
-                myval=(uint16_t)g_humidity;
-      } else if (sensor_next == 2) {
-//                myval=g_co2;
-                myval=536;
-                if (myval > 750) {
-                  POINT_COLOR=RED;
-                }
-      } else if (sensor_next == 3) {
-                myval=g_voc;
-                if (myval > 375) {
-                  POINT_COLOR=RED;
-                }
-      } else if (sensor_next == 4) {
-                myval=187;
-                if (myval > 100) {
-                  POINT_COLOR=RED;
-                }
-      } else {
-                myval=0;
-      }
-                sprintf(buf, "%d", myval);
-                if(myval<0) //Negative value
-                {
-                   LCD_ShowChar(DIGIT_XPOS, DIGIT_YPOS, '-', 32, 1);
-                }
-                else if(myval>=0 && myval<10)
-                {
-                   bit_width=2;
-                }else if(myval>=10 && myval<100)
-                {
-                   bit_width=2;
-                }
-                else if(myval>=100 && myval<1000)
-                {
-                   bit_width=3;
-                }
-                LCD_ShowDigtStr(buf, 0, bit_width);
-      break;
-    default:
-      break;
-    }
-    sensor_current = sensor_next;
-  }
-}
-
 /* USER CODE END 0 */
 
 int main(void)
@@ -323,6 +212,9 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_I2C1_Init();
+
+  IAQ_Init();
+  Comm_Init();
 
   /* Force reset */
   LCD_RST_RESET;
@@ -358,13 +250,22 @@ int main(void)
   printf("Starting...\r\n");
   HAL_UART_Receive_IT(&huart3, &one_byte, 1);
 
-  Comm_Init();
-
-#if 1
-  Test_SensorAutoDisp2();
-#endif
-
   /* TEST CODE END */
+  float curval;
+  uint16_t myval;
+  uint8_t bit_width;
+  char buf[4]={0};
+
+  POINT_COLOR=WHITE;
+  //          LCD_Switch_Off();
+
+  LCD_ShowImage(LOGO_XPOS, LOGO_YPOS, LOGO_WIDTH, LOGO_HEIGHT, (uint8_t*)logo);
+  HAL_Delay(2000);
+  LCD_Clear(BLACK);
+
+  PM25_StopAutoSend();
+  PM25_StartMeasurement();
+  HAL_Delay(100);
 
   /* USER CODE END 2 */
 
@@ -374,6 +275,94 @@ int main(void)
   {
 
     /* USER CODE BEGIN 3 */
+    if(comm_rcv_flag)
+    {
+      Comm_Process();
+      comm_rcv_flag = 0;
+      Comm_Response();
+    }
+    if (sensor_current == sensor_next) {
+      continue ;
+    }
+
+    // Read sensor data
+    Get_VocData(&g_co2, &g_voc);
+    Get_HumiTemp(&g_humidity, &g_temperature);
+    S8_Read(&g_co2);
+    PM25_Read(&g_pm25, &g_pm10);
+
+    LCD_Clear(BLACK);
+    POINT_COLOR=WHITE;
+
+    memset(buf, 0, sizeof(buf));
+    LCD_ShowImage(ICON_SENSOR_XPOS, ICON_SENSOR_YPOS,
+                  ICON_SENSOR_WIDTH, ICON_SENSOR_HEIGHT, (uint8_t*)screen[sensor_next].cur_icon);
+    //            LCD_ShowSlide(screen[sensor_next].cur_index);
+
+    switch (sensor_next) {
+    case 0:
+      curval=g_temperature;
+      sprintf(buf,"%3.1f",curval);
+      if(curval<0) //Negative value
+      {
+        LCD_ShowChar(DIGIT_XPOS, DIGIT_YPOS, '-', 32, 1);
+      }
+      else if(curval>=0 && curval<10)
+      {
+        bit_width=2;
+      }else if(curval>=10 && curval<100)
+      {
+        bit_width=3;
+      }
+      LCD_ShowDigtStr(buf, 1, bit_width);
+      break;
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+      if (sensor_next == 1) {
+        myval=(uint16_t)g_humidity;
+      } else if (sensor_next == 2) {
+        //                myval=g_co2;
+        myval=536;
+        if (myval > 750) {
+          POINT_COLOR=RED;
+        }
+      } else if (sensor_next == 3) {
+        myval=g_voc;
+        if (myval > 375) {
+          POINT_COLOR=RED;
+        }
+      } else if (sensor_next == 4) {
+        myval=187;
+        if (myval > 100) {
+          POINT_COLOR=RED;
+        }
+      } else {
+        myval=0;
+      }
+      sprintf(buf, "%d", myval);
+      if(myval<0) //Negative value
+      {
+        LCD_ShowChar(DIGIT_XPOS, DIGIT_YPOS, '-', 32, 1);
+      }
+      else if(myval>=0 && myval<10)
+      {
+        bit_width=2;
+      }else if(myval>=10 && myval<100)
+      {
+        bit_width=2;
+      }
+      else if(myval>=100 && myval<1000)
+      {
+        bit_width=3;
+      }
+      LCD_ShowDigtStr(buf, 0, bit_width);
+      break;
+    default:
+      break;
+    }
+    sensor_current = sensor_next;
 
     /* USER CODE END 3 */
   }
