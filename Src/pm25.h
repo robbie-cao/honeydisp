@@ -1,5 +1,5 @@
-#ifndef __SENSAIR_H
-#define __SENSAIR_H
+#ifndef __PM25_H
+#define __PM25_H
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"

@@ -36,6 +36,10 @@
  ******************************************************************************
  */
 /* Includes ------------------------------------------------------------------*/
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+
 #include "main.h"
 #include "stm32f4xx_hal.h"
 
@@ -102,7 +106,7 @@ uint8_t comm_rcv_flag;
 float g_humidity = 0.0, g_temperature = 0.0;
 uint16_t g_co2 = 500, g_voc = 50, g_pm25 = 50, g_pm10 = 50;
 
-typedef struct LCD_Screen
+struct LCD_Screen
 {
    uint8_t* cur_icon;
    union value
@@ -113,7 +117,7 @@ typedef struct LCD_Screen
    uint8_t cur_index;
 };
 
-struct LCD_Screen screen[4];
+struct LCD_Screen screen[5];
 
 
 
