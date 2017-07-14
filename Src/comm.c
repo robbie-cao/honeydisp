@@ -6,8 +6,12 @@
 
 uint8_t temp_id_str[2];
 
-#define UNIQUE_ID_ADDR_BASE 0x4926
+#define UNIQUE_ID_ADDR_BASE 0x1FFF7A10
+//unsigned char UNIQUE_ID_ADDR_BASE[] = "002E00510747353238353434";
+#define STM32_UUID ((uint32_t *)0x1FFF7A10)
 #define UNIQUE_ID_LEN 12
+
+#define B2L(x)  ((((x) & 0xFF000000) >> 24) | (((x) & 0x00FF0000) >> 8) | (((x) & 0x0000FF00) << 8) | (((x) & 0x000000FF) << 24))
 
 unsigned char g_ucaSeriNo[UNIQUE_ID_LEN];
 uint8_t comm_send_len = 0;
@@ -352,7 +356,7 @@ uint8_t Get_PM25_P(uint8_t* buf)
     buf[6] = ' ';
     return 7;
   }
-  i = To_ASCII_ver2((int16_t)g_co2, &buf[4]);
+  i = To_ASCII_ver2((int16_t)g_pm25, &buf[4]);
   buf[i+4] = ',';
   return (i+5);
 }
@@ -371,9 +375,13 @@ void Clear_Rcv_Buf(void)
 void Comm_Init(void)
 {
   unsigned char i;
-  for(i = 0; i<UNIQUE_ID_LEN; i++)
-  {
-    g_ucaSeriNo[i] = *((unsigned char*)(UNIQUE_ID_ADDR_BASE + i));
+//  for(i = 0; i<UNIQUE_ID_LEN; i++)
+//  {
+//    g_ucaSeriNo[i] = *((unsigned char*)(UNIQUE_ID_ADDR_BASE + i));
+//  }
+  uint32_t *p = (uint32_t *)g_ucaSeriNo;
+  for (i = 0; i < 3; i++) {
+    *p++ = B2L(STM32_UUID[i]);
   }
 }
 
@@ -382,8 +390,6 @@ void Comm_Process(void)
 {
   uint8_t* recv_ptr = recv_comm_buf;
   uint8_t* send_ptr = send_comm_buf;
-  uint8_t argv[32];
-  uint8_t argc;
   uint8_t recv_len = recv_comm_idx;
   uint8_t len = 0;
   uint8_t send_len = 0;
@@ -490,7 +496,9 @@ void Comm_Process(void)
 void Comm_Response(void)
 {
   printf("Resp\r\n");
-  HAL_UART_Transmit(&huart3, "ACK\r\n", 5, 1000);
-  HAL_UART_Transmit(&huart3, send_comm_buf, comm_send_len, 1000);
+//  HAL_UART_Transmit(&huart3, "ACK\r\n", 5, 1000);
+  uint8_t res = HAL_UART_Transmit(&huart3, send_comm_buf, comm_send_len, 1000);
+  printf("%d - %d: %s\r\n", res, comm_send_len, send_comm_buf);
+  comm_send_len = 0;
 }
 

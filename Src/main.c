@@ -39,10 +39,14 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 
-//#include "ili9488.h"
 #include "st_logo1.h"
 #include "lcd.h"
 #include "logo.h"
+
+#include "voc.h"
+#include "sensair.h"
+#include "pm25.h"
+#include "hih6130.h"
 
 #include "comm.h"
 
@@ -103,7 +107,7 @@ uint8_t rcv_tim_delay;
 uint8_t comm_rcv_flag;
 
 float g_humidity = 0.0, g_temperature = 0.0;
-uint16_t g_co2 = 0, g_voc = 0, g_pm25 = 0;
+uint16_t g_co2 = 500, g_voc = 0, g_pm25 = 50;
 
 
 /* USER CODE BEGIN PV */
@@ -493,6 +497,8 @@ int main(void)
   /* TEST CODE BEGIN */
   printf("Starting...\r\n");
   HAL_UART_Receive_IT(&huart3, &one_byte, 1);
+
+  Comm_Init();
   while (1) {
     if(comm_rcv_flag)
     {
@@ -500,8 +506,13 @@ int main(void)
       comm_rcv_flag = 0;
       Comm_Response();
     }
-    Get_VocData(&g_co2, &g_voc);
+    if (sensor_current == sensor_next) {
+      continue ;
+    }
+    uint16_t tmp;
+    Get_VocData(&tmp, &g_voc);
     Get_HumiTemp(&g_humidity, &g_temperature);
+    sensor_current = sensor_next;
   }
 
 #if 0
@@ -639,8 +650,8 @@ static void MX_TIM3_Init(void)
   /* Compute the prescaler value to have TIM3 counter clock equal to 10 KHz */
   uint32_t uwPrescalerValue = (uint32_t) ((SystemCoreClock /2) / 10000) - 1;
 
-  TIM_ClockConfigTypeDef sClockSourceConfig;
-  TIM_MasterConfigTypeDef sMasterConfig;
+//  TIM_ClockConfigTypeDef sClockSourceConfig;
+//  TIM_MasterConfigTypeDef sMasterConfig;
 
   htim3.Instance = TIM3;
   htim3.Init.Period = 10000 - 1;
@@ -798,7 +809,7 @@ static void MX_USART3_UART_Init(void)
 {
 
   huart3.Instance = USART3;
-  huart3.Init.BaudRate = 9600;
+  huart3.Init.BaudRate = 115200;
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   huart3.Init.StopBits = UART_STOPBITS_1;
   huart3.Init.Parity = UART_PARITY_NONE;

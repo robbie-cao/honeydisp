@@ -502,7 +502,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
 static uint32_t FMC_Initialized = 0;
 
-static void HAL_FMC_MspInit(void){
+static void HAL_FMC_MspInit(void)
+{
   /* USER CODE BEGIN FMC_MspInit 0 */
 
   /* USER CODE END FMC_MspInit 0 */

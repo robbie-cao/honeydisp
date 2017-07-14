@@ -38,6 +38,9 @@
 /* USER CODE BEGIN 0 */
 extern TIM_HandleTypeDef htim3;
 extern UART_HandleTypeDef huart3;
+
+extern void Timer_1MS_ISR(void);
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/

@@ -9,6 +9,7 @@ typedef uint8_t bool;
 #define FALSE   0
 #define TRUE    1
 
+void Comm_Init(void);
 void Comm_Process(void);
 void Clear_Rcv_Buf(void);
 void Comm_Response(void);
