@@ -54,23 +54,6 @@
 
 #include "comm.h"
 
-/* Pin definitions */
-#define LCD_RST_PORT      GPIOC
-#define LCD_RST_PIN       GPIO_PIN_6
-#define LCD_RST_CLK_ENABLE()           __HAL_RCC_GPIOC_CLK_ENABLE()
-#define LCD_RST_CLK_DISABLE()          __HAL_RCC_GPIOC_CLK_DISABLE()
-
-#define LCD_RST_SET			HAL_GPIO_WritePin(LCD_RST_PORT, LCD_RST_PIN, GPIO_PIN_SET)
-#define LCD_RST_RESET			HAL_GPIO_WritePin(LCD_RST_PORT, LCD_RST_PIN, GPIO_PIN_RESET)
-
-
-#define LCD_BKL_PORT      GPIOC
-#define LCD_BKL_PIN       GPIO_PIN_5
-#define LCD_BKL_CLK_ENABLE()           __HAL_RCC_GPIOC_CLK_ENABLE()
-#define LCD_BKL_CLK_DISABLE()          __HAL_RCC_GPIOC_CLK_DISABLE()
-
-#define LCD_BKL_SET			HAL_GPIO_WritePin(LCD_BKL_PORT, LCD_BKL_PIN, GPIO_PIN_SET)
-#define LCD_BKL_RESET			HAL_GPIO_WritePin(LCD_BKL_PORT, LCD_BKL_PIN, GPIO_PIN_RESET)
 
 
 
@@ -218,18 +201,6 @@ int main(void)
 
   IAQ_Init();
   Comm_Init();
-
-  /* Force reset */
-  LCD_RST_RESET;
-  LCD_Delay(20000);
-  LCD_RST_SET;
-
-  /* Delay for RST response */
-  LCD_Delay(20000);
-
-  /* Software reset */
-  LCD_WR_REG(SOFT_RESET);
-  LCD_Delay(50000);
 
   LCD_Init();
   LCD_BKL_SET;
