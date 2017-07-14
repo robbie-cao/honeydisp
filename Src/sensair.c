@@ -13,10 +13,10 @@ uint8_t S8_Read(uint16_t *c)
   memset(rcv, 0, sizeof(rcv));
   HAL_UART_Transmit(&huart3, cmd, 8, TIMEOUT);
   HAL_UART_Receive(&huart3, rcv, 7, TIMEOUT);
-  for (int i = 0; i < 7; i++) {
-    printf("0x%02x ", rcv[i]);
-  }
-  printf("\r\n");
+//  for (int i = 0; i < 7; i++) {
+//    printf("0x%02x ", rcv[i]);
+//  }
+//  printf("\r\n");
   if (rcv[1] == 0x04 && rcv[2] == 0x02) {
     uint16_t co2 = rcv[3] << 8 | rcv[4];
     printf("CO2: %d\r\n", co2);

@@ -13,10 +13,10 @@ uint8_t PM25_EnableAutoSend(void)
   memset(rcv, 0, sizeof(rcv));
   HAL_UART_Transmit(&huart4, cmd, 4, TIMEOUT);
   HAL_UART_Receive(&huart4, rcv, 2, TIMEOUT);
-  for (int i = 0; i < 2; i++) {
-    printf("0x%02x ", rcv[i]);
-  }
-  printf("\r\n");
+//  for (int i = 0; i < 2; i++) {
+//    printf("0x%02x ", rcv[i]);
+//  }
+//  printf("\r\n");
   if (rcv[0] != 0xA5 || rcv[1] != 0xA5) {
     return ERROR;
   }
@@ -32,10 +32,10 @@ uint8_t PM25_StopAutoSend(void)
   memset(rcv, 0, sizeof(rcv));
   HAL_UART_Transmit(&huart4, cmd, 4, TIMEOUT);
   HAL_UART_Receive(&huart4, rcv, 2, TIMEOUT);
-  for (int i = 0; i < 2; i++) {
-    printf("0x%02x ", rcv[i]);
-  }
-  printf("\r\n");
+//  for (int i = 0; i < 2; i++) {
+//    printf("0x%02x ", rcv[i]);
+//  }
+//  printf("\r\n");
   if (rcv[0] != 0xA5 || rcv[1] != 0xA5) {
     return ERROR;
   }
@@ -51,10 +51,10 @@ uint8_t PM25_StartMeasurement(void)
   memset(rcv, 0, sizeof(rcv));
   HAL_UART_Transmit(&huart4, cmd, 4, TIMEOUT);
   HAL_UART_Receive(&huart4, rcv, 2, TIMEOUT);
-  for (int i = 0; i < 2; i++) {
-    printf("0x%02x ", rcv[i]);
-  }
-  printf("\r\n");
+//  for (int i = 0; i < 2; i++) {
+//    printf("0x%02x ", rcv[i]);
+//  }
+//  printf("\r\n");
   if (rcv[0] != 0xA5 || rcv[1] != 0xA5) {
     return ERROR;
   }
@@ -70,10 +70,10 @@ uint8_t PM25_StopMeasurement(void)
   memset(rcv, 0, sizeof(rcv));
   HAL_UART_Transmit(&huart4, cmd, 4, TIMEOUT);
   HAL_UART_Receive(&huart4, rcv, 2, TIMEOUT);
-  for (int i = 0; i < 2; i++) {
-    printf("0x%02x ", rcv[i]);
-  }
-  printf("\r\n");
+//  for (int i = 0; i < 2; i++) {
+//    printf("0x%02x ", rcv[i]);
+//  }
+//  printf("\r\n");
   if (rcv[0] != 0xA5 || rcv[1] != 0xA5) {
     return ERROR;
   }
@@ -89,10 +89,10 @@ uint8_t PM25_Read(uint16_t *pm25, uint16_t *pm10)
   memset(rcv, 0, sizeof(rcv));
   HAL_UART_Transmit(&huart4, cmd, 4, TIMEOUT);
   HAL_UART_Receive(&huart4, rcv, 8, TIMEOUT);
-  for (int i = 0; i < 8; i++) {
-    printf("0x%02x ", rcv[i]);
-  }
-  printf("\r\n");
+//  for (int i = 0; i < 8; i++) {
+//    printf("0x%02x ", rcv[i]);
+//  }
+//  printf("\r\n");
   if (!(rcv[0] == 0x40 && rcv[1] == 0x05 && rcv[2] == 0x04)) {
     *pm25 = 0;
     *pm10 = 0;
