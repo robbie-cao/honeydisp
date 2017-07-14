@@ -598,6 +598,110 @@ void Test_SensorAutoDisp(void)
   }
 }
 
+void Test_SensorAutoDisp2(void)
+{
+  uint8_t x=0;
+  uint8_t k=0;
+  float curval;
+  uint16_t myval;
+  uint8_t bit_width;
+  char buf[4]={0};
+
+  POINT_COLOR=WHITE;
+  //          LCD_Switch_Off();
+
+  LCD_ShowImage(LOGO_XPOS, LOGO_YPOS, LOGO_WIDTH, LOGO_HEIGHT, (uint8_t*)logo);
+  HAL_Delay(2000);
+  LCD_Clear(BLACK);
+
+  IAQ_Init();
+
+  while (1) {
+    float h, t;
+    uint16_t co2, voc;
+    char str[32];
+
+    if (sensor_current == sensor_next) {
+      continue ;
+    }
+
+    memset(str, 0, sizeof(str));
+    Get_VocData(&co2, &voc);
+    Get_HumiTemp(&h, &t);
+    S8_Read(&co2);
+
+    LCD_Clear(BLACK);
+    POINT_COLOR=WHITE;
+
+            memset(buf, 0, sizeof(buf));
+            LCD_ShowImage(ICON_SENSOR_XPOS, ICON_SENSOR_YPOS,
+                          ICON_SENSOR_WIDTH, ICON_SENSOR_HEIGHT, (uint8_t*)screen[sensor_next].cur_icon);
+//            LCD_ShowSlide(screen[sensor_next].cur_index);
+
+    switch (sensor_next) {
+    case 0:
+                curval=t;
+                sprintf(buf,"%3.1f",curval);
+                if(curval<0) //Negative value
+                {
+                   LCD_ShowChar(DIGIT_XPOS, DIGIT_YPOS, '-', 32, 1);
+                }
+                else if(curval>=0 && curval<10)
+                {
+                   bit_width=2;
+                }else if(curval>=10 && curval<100)
+                {
+                   bit_width=3;
+                }
+                LCD_ShowDigtStr(buf, 1, bit_width);
+      break;
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+      if (sensor_next == 1) {
+                myval=(uint16_t)h;
+      } else if (sensor_next == 2) {
+//                myval=co2;
+                myval=536;
+                if (myval > 500) {
+                  POINT_COLOR=RED;
+                }
+      } else if (sensor_next == 3) {
+                myval=voc;
+      } else if (sensor_next == 4) {
+                myval=87;
+                if (myval > 300) {
+                  POINT_COLOR=RED;
+                }
+      } else {
+                myval=0;
+      }
+                sprintf(buf, "%d", myval);
+                if(myval<0) //Negative value
+                {
+                   LCD_ShowChar(DIGIT_XPOS, DIGIT_YPOS, '-', 32, 1);
+                }
+                else if(myval>=0 && myval<10)
+                {
+                   bit_width=2;
+                }else if(myval>=10 && myval<100)
+                {
+                   bit_width=2;
+                }
+                else if(myval>=100 && myval<1000)
+                {
+                   bit_width=3;
+                }
+                LCD_ShowDigtStr(buf, 0, bit_width);
+      break;
+    default:
+      break;
+    }
+    sensor_current = sensor_next;
+  }
+}
+
 /* USER CODE END 0 */
 
 int main(void)
@@ -694,9 +798,13 @@ int main(void)
   Test_LogoAndFonts();
 #endif
 
-#if 1
+#if 0
   IAQ_Init();
   Test_LogoFontsAndData();
+#endif
+
+#if 1
+  Test_SensorAutoDisp2();
 #endif
 
 #if 0
@@ -1101,7 +1209,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   tim3_count++;
   if (tim3_count >= 3) {
     sensor_next += 1;
-    if (sensor_next >= 4) {
+    if (sensor_next >= 5) {
       sensor_next = 0;
     }
     tim3_count = 0;
