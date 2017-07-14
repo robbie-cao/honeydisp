@@ -460,7 +460,7 @@ void Comm_Process(void)
           send_len++;
         }
 
-        printf("%s\r\n", send_comm_buf);
+//        printf("%s\r\n", send_comm_buf);
 
         //USART_ITConfig(COM_PORT, USART_IT_RXNE, ENABLE);
       }

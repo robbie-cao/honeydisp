@@ -262,17 +262,17 @@ int main(void)
     // Read sensor data
     Get_VocData(&g_co2, &g_voc);
     Get_HumiTemp(&g_humidity, &g_temperature);
-    S8_Read(&g_co2);
-    PM25_Read(&g_pm25, &g_pm10);
+//    S8_Read(&g_co2);
+//    PM25_Read(&g_pm25, &g_pm10);
 
-    //LCD_Clear(BLACK);
-    LCD_MaskImage(0,0,480,320, BLACK);
+    LCD_Clear(BLACK);
+    //LCD_MaskImage(0,0,480,320, BLACK);
     POINT_COLOR=WHITE;
 
     memset(buf, 0, sizeof(buf));
     LCD_ShowImage(ICON_SENSOR_XPOS, ICON_SENSOR_YPOS,
                   ICON_SENSOR_WIDTH, ICON_SENSOR_HEIGHT, (uint8_t*)screen[sensor_next].cur_icon);
-    //            LCD_ShowSlide(screen[sensor_next].cur_index);
+    // LCD_ShowSlide(screen[sensor_next].cur_index);
 
     switch (sensor_next) {
     case 0:
