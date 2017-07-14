@@ -3,7 +3,9 @@
 
 #define TIMEOUT         500
 
-extern UART_HandleTypeDef huart3;
+#define PORT    huart2
+
+extern UART_HandleTypeDef huart2;
 
 uint8_t S8_Read(uint16_t *c)
 {
@@ -11,8 +13,8 @@ uint8_t S8_Read(uint16_t *c)
   uint8_t rcv[8];
 
   memset(rcv, 0, sizeof(rcv));
-  HAL_UART_Transmit(&huart3, cmd, 8, TIMEOUT);
-  HAL_UART_Receive(&huart3, rcv, 7, TIMEOUT);
+  HAL_UART_Transmit(&PORT, cmd, 8, TIMEOUT);
+  HAL_UART_Receive(&PORT, rcv, 7, TIMEOUT);
 //  for (int i = 0; i < 7; i++) {
 //    printf("0x%02x ", rcv[i]);
 //  }
