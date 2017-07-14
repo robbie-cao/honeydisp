@@ -265,7 +265,8 @@ int main(void)
     S8_Read(&g_co2);
     PM25_Read(&g_pm25, &g_pm10);
 
-    LCD_Clear(BLACK);
+    //LCD_Clear(BLACK);
+    LCD_MaskImage(0,0,480,320, BLACK);
     POINT_COLOR=WHITE;
 
     memset(buf, 0, sizeof(buf));
