@@ -44,6 +44,7 @@
 #include "lcd.h"
 #include "logo.h"
 
+#include "comm.h"
 
 //extern FontDef_t Font_7x10;
 //extern FontDef_t Font_11x18;
@@ -94,11 +95,16 @@ uint8_t sensor_current = 0xFF;
 uint8_t sensor_next = 0;
 
 uint8_t one_byte = 'X';
-uint8_t recv_comm_buf[COMM_BUF_MAX];
+uint8_t recv_comm_buf[COMM_RECV_BUF_MAX];
+uint8_t send_comm_buf[256];
 uint8_t recv_comm_idx;
 uint8_t start_rcv_timer;
 uint8_t rcv_tim_delay;
 uint8_t comm_rcv_flag;
+
+float g_humidity = 0.0, g_temperature = 0.0;
+uint16_t g_co2 = 0, g_voc = 0, g_pm25 = 0;
+
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -417,12 +423,6 @@ void Test_SensorAutoDisp(void)
   }
 }
 
-/* Process the incoming command, one piece at a time */
-void Comm_Process(void)
-{
-  printf("%s\r\n", recv_comm_buf);
-}
-
 /* USER CODE END 0 */
 
 int main(void)
@@ -498,7 +498,10 @@ int main(void)
     {
       Comm_Process();
       comm_rcv_flag = 0;
+      Comm_Response();
     }
+    Get_VocData(&g_co2, &g_voc);
+    Get_HumiTemp(&g_humidity, &g_temperature);
   }
 
 #if 0
@@ -808,7 +811,7 @@ static void MX_USART3_UART_Init(void)
   }
 
     /* Initialize recv_comm_buf */
-    for(int i=0;i<COMM_BUF_MAX;i++)
+    for(int i=0;i<COMM_RECV_BUF_MAX;i++)
     {
         recv_comm_buf[i] = 0;
     }
@@ -945,7 +948,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
   if(!comm_rcv_flag)
   {
     recv_comm_buf[recv_comm_idx++] = one_byte;
-    if(recv_comm_idx == COMM_BUF_MAX)
+    if(recv_comm_idx == COMM_RECV_BUF_MAX)
     {
       recv_comm_idx = 0;
     }

@@ -19,19 +19,19 @@ ErrorStatus HIH6130_ReadHumiTemp(uint16_t* pDataH, uint16_t* pDataT)
 
   memset(buf, 0, sizeof(buf));
   res = I2C_Write(HIH6130_I2C_ADDRESS, NULL, 0);
-  printf("I2C W - %d\r\n", res);
+//  printf("I2C W - %d\r\n", res);
   if (res != HAL_OK) {
     return ERROR;
   }
   /* Wait some time before read operation */
   HAL_Delay(60);
   res = I2C_Read(HIH6130_I2C_ADDRESS, buf, sizeof(buf));
-  printf("H/T R - %d\r\n", res);
-  printf("Data: ");
-  for (int i = 0; i < sizeof(buf); i++) {
-    printf("%02x ", buf[i]);
-  }
-  printf("\r\n");
+//  printf("H/T R - %d\r\n", res);
+//  printf("Data: ");
+//  for (int i = 0; i < sizeof(buf); i++) {
+//    printf("%02x ", buf[i]);
+//  }
+//  printf("\r\n");
   if (res != HAL_OK) {
     return ERROR;
   }

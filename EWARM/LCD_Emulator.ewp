@@ -38,7 +38,7 @@
         </option>
         <option>
           <name>Input description</name>
-          <state></state>
+          <state>Full formatting.</state>
         </option>
         <option>
           <name>Output variant</name>
@@ -47,7 +47,7 @@
         </option>
         <option>
           <name>Output description</name>
-          <state></state>
+          <state>Full formatting.</state>
         </option>
         <option>
           <name>GOutputBinary</name>
@@ -611,7 +611,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>Project.srec</state>
+          <state>LCD_Emulator.srec</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -980,6 +980,9 @@
     </group>
     <group>
       <name>User</name>
+      <file>
+        <name>$PROJ_DIR$\..\Src\comm.c</name>
+      </file>
       <file>
         <name>$PROJ_DIR$\..\Src\fonts.c</name>
       </file>
