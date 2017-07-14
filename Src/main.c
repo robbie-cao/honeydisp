@@ -39,7 +39,6 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 
-#include "st_logo1.h"
 #include "lcd.h"
 #include "logo.h"
 #include "icon.h"
