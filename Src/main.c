@@ -108,7 +108,7 @@ uint8_t rcv_tim_delay;
 uint8_t comm_rcv_flag;
 
 float g_humidity = 0.0, g_temperature = 0.0;
-uint16_t g_co2 = 500, g_voc = 0, g_pm25 = 50;
+uint16_t g_co2 = 500, g_voc = 0, g_pm25 = 50, g_pm10 = 50;
 
 typedef struct LCD_Screen
 {
@@ -615,20 +615,31 @@ void Test_SensorAutoDisp2(void)
   LCD_Clear(BLACK);
 
   IAQ_Init();
+  Comm_Init();
+  PM25_StopAutoSend();
+  PM25_StartMeasurement();
+  HAL_Delay(100);
 
   while (1) {
     float h, t;
     uint16_t co2, voc;
     char str[32];
 
+    if(comm_rcv_flag)
+    {
+      Comm_Process();
+      comm_rcv_flag = 0;
+      Comm_Response();
+    }
     if (sensor_current == sensor_next) {
       continue ;
     }
 
     memset(str, 0, sizeof(str));
-    Get_VocData(&co2, &voc);
-    Get_HumiTemp(&h, &t);
-    S8_Read(&co2);
+    Get_VocData(&g_co2, &g_voc);
+    Get_HumiTemp(&g_humidity, &g_temperature);
+    S8_Read(&g_co2);
+    PM25_Read(&g_pm25, &g_pm10);
 
     LCD_Clear(BLACK);
     POINT_COLOR=WHITE;
@@ -640,7 +651,7 @@ void Test_SensorAutoDisp2(void)
 
     switch (sensor_next) {
     case 0:
-                curval=t;
+                curval=g_temperature;
                 sprintf(buf,"%3.1f",curval);
                 if(curval<0) //Negative value
                 {
@@ -660,15 +671,15 @@ void Test_SensorAutoDisp2(void)
     case 3:
     case 4:
       if (sensor_next == 1) {
-                myval=(uint16_t)h;
+                myval=(uint16_t)g_humidity;
       } else if (sensor_next == 2) {
-//                myval=co2;
+//                myval=g_co2;
                 myval=536;
                 if (myval > 750) {
                   POINT_COLOR=RED;
                 }
       } else if (sensor_next == 3) {
-                myval=voc;
+                myval=g_voc;
                 if (myval > 375) {
                   POINT_COLOR=RED;
                 }
