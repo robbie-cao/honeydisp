@@ -664,14 +664,17 @@ void Test_SensorAutoDisp2(void)
       } else if (sensor_next == 2) {
 //                myval=co2;
                 myval=536;
-                if (myval > 500) {
+                if (myval > 750) {
                   POINT_COLOR=RED;
                 }
       } else if (sensor_next == 3) {
                 myval=voc;
+                if (myval > 375) {
+                  POINT_COLOR=RED;
+                }
       } else if (sensor_next == 4) {
-                myval=87;
-                if (myval > 300) {
+                myval=187;
+                if (myval > 100) {
                   POINT_COLOR=RED;
                 }
       } else {
