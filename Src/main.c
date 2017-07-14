@@ -42,6 +42,7 @@
 #include "st_logo1.h"
 #include "lcd.h"
 #include "logo.h"
+#include "icon.h"
 
 #include "voc.h"
 #include "sensair.h"
@@ -108,6 +109,20 @@ uint8_t comm_rcv_flag;
 
 float g_humidity = 0.0, g_temperature = 0.0;
 uint16_t g_co2 = 500, g_voc = 0, g_pm25 = 50;
+
+typedef struct LCD_Screen
+{
+   uint8_t* cur_icon;
+   union value
+   {
+       float temp_val;
+       uint16_t other_val;
+   }sensor;
+   uint8_t cur_index;
+};
+
+struct LCD_Screen screen[4];
+
 
 
 /* USER CODE BEGIN PV */
@@ -346,6 +361,162 @@ void Test_LogoAndFonts(void)
     LCD_MaskImage(30,124,420,72, BLACK);
     HAL_Delay(2000);
   }
+}
+
+void IAQ_Init(void)
+{
+   /* Screen[0] For temp */
+    screen[0].cur_icon =(uint8_t*)icon_temp;
+    screen[0].sensor.temp_val= (float)35.9;
+    screen[0].cur_index = INDEX_0;
+
+   /* Screen[1] For Humidity */
+    screen[1].cur_icon =(uint8_t*)icon_hum;
+    screen[1].sensor.other_val= 71;
+    screen[1].cur_index = INDEX_1;
+
+   /* Screen[2] For CO2*/
+    screen[2].cur_icon =(uint8_t*)icon_co2;
+    screen[2].sensor.other_val= 420;
+    screen[2].cur_index = INDEX_2;
+
+  /* Screen[3] For TVOC*/
+    screen[3].cur_icon =(uint8_t*)icon_tvoc;
+    screen[3].sensor.other_val= 106;
+    screen[3].cur_index = INDEX_3;
+
+  /* Screen[4] For PM25*/
+    screen[4].cur_icon =(uint8_t*)icon_pm25;
+    screen[4].sensor.other_val= 68;
+    screen[4].cur_index = INDEX_4;
+
+}
+
+
+/* USER CODE BEGIN 5 */
+/* StartDefaultTask function */
+void Test_LogoFontsAndData(void)
+{
+  uint8_t x=0;
+  uint8_t k=0;
+  float curval;
+  uint16_t myval;
+  uint8_t bit_width;
+  char buf[4]={0};
+
+  LCD_Clear(BLACK);
+  /* Infinite loop */
+  for(;;)
+  {
+          printf("LCD Task is Running Now...\r\n");
+          POINT_COLOR=WHITE;
+//          LCD_Switch_Off();
+
+          LCD_ShowImage(LOGO_XPOS, LOGO_YPOS, LOGO_WIDTH, LOGO_HEIGHT, (uint8_t*)logo);
+          HAL_Delay(2000);
+          LCD_Clear(BLACK);
+
+
+          for(k=0;k<5;k++)
+          {
+            POINT_COLOR=WHITE;
+            memset(buf, 0, sizeof(buf));
+            LCD_ShowImage(ICON_SENSOR_XPOS, ICON_SENSOR_YPOS,
+                          ICON_SENSOR_WIDTH, ICON_SENSOR_HEIGHT, (uint8_t*)screen[k].cur_icon);
+            LCD_ShowSlide(screen[k].cur_index);
+             if(k==0)
+             {
+                POINT_COLOR=RED;
+                curval=screen[k].sensor.temp_val;
+                sprintf(buf,"%3.1f",curval);
+                if(curval<0) //Negative value
+                {
+                   LCD_ShowChar(DIGIT_XPOS, DIGIT_YPOS, '-', 32, 1);
+                }
+                else if(curval>=0 && curval<10)
+                {
+                   bit_width=2;
+                }else if(curval>=10 && curval<100)
+                {
+                   bit_width=3;
+                }
+                LCD_ShowDigtStr(buf, 1, bit_width);
+             }
+             else
+             {
+                myval=screen[k].sensor.other_val;
+                sprintf(buf, "%d", myval);
+                if(myval<0) //Negative value
+                {
+                   LCD_ShowChar(DIGIT_XPOS, DIGIT_YPOS, '-', 32, 1);
+                }
+                else if(myval>=0 && myval<10)
+                {
+                   bit_width=2;
+                }else if(myval>=10 && myval<100)
+                {
+                   bit_width=2;
+                }
+                else if(myval>=100 && myval<1000)
+                {
+                   bit_width=3;
+                }
+                LCD_ShowDigtStr(buf, 0, bit_width);
+
+             }
+
+             HAL_Delay(2000);
+             LCD_Clear(BLACK);
+          }
+
+
+#if 0
+                POINT_COLOR=WHITE;
+
+                for(k=0; k<2;k++)
+                {
+                    LCD_ShowDigit(DOT_XPOS+k*DIGIT_WIDTH,DIGIT_YPOS,0x33+k,DIGIT_HEIGHT,1);
+                }
+                LCD_ShowDot();
+                LCD_ShowDigit(DOT_XPOS+DIGIT_XPOS+2*DIGIT_WIDTH,DIGIT_YPOS,0x35,DIGIT_HEIGHT,1);
+                LCD_ShowSlide(INDEX_0);
+
+                LCD_ShowImage(ICON_SENSOR_XPOS, ICON_SENSOR_YPOS,
+                              ICON_SENSOR_WIDTH, ICON_SENSOR_HEIGHT, (uint8_t*)icon_temp);
+
+
+
+                 HAL_Delay(2000);
+  //               LCD_Scroll_On(LEFT);
+  //              HAL_Delay(2000);
+
+                LCD_Clear(BLACK);
+                POINT_COLOR=RED;
+
+                for(k=0;k<4;k++)
+                {
+                   LCD_ShowDigit(DIGIT_XPOS+k*DIGIT_WIDTH,DIGIT_YPOS,0x36+k,DIGIT_HEIGHT,1);
+
+                }
+                LCD_ShowImage(ICON_SENSOR_XPOS, ICON_SENSOR_YPOS,
+                              ICON_SENSOR_WIDTH, ICON_SENSOR_HEIGHT, (uint8_t*)icon_hum);
+                LCD_ShowSlide(INDEX_1);
+
+                 HAL_Delay(2000);
+  //               LCD_Scroll_On(RIGHT);
+  //               HAL_Delay(2000);
+
+#endif
+ //              LCD_Switch_On();
+
+
+               LCD_Clear(BLACK);
+               LCD_ShowImage(LOGO_XPOS, LOGO_YPOS, LOGO_WIDTH, LOGO_HEIGHT, (uint8_t*)logo);
+               LCD_MaskImage(LOGO_XPOS,LOGO_YPOS,LOGO_WIDTH,LOGO_HEIGHT, BLACK);
+               HAL_Delay(2000);
+
+   }
+
 
 }
 
@@ -499,7 +670,7 @@ int main(void)
   HAL_UART_Receive_IT(&huart3, &one_byte, 1);
 
   Comm_Init();
-  while (1) {
+  while (0) {
     if(comm_rcv_flag)
     {
       Comm_Process();
@@ -521,6 +692,11 @@ int main(void)
 
 #if 0
   Test_LogoAndFonts();
+#endif
+
+#if 1
+  IAQ_Init();
+  Test_LogoFontsAndData();
 #endif
 
 #if 0

@@ -36,6 +36,42 @@ extern u32        BACK_COLOR;  // 背景颜色.默认为白色
 #define LEFT          0
 #define RIGHT         1
 
+enum slide_index
+{
+    INDEX_0 =0,
+    INDEX_1 =1,
+    INDEX_2 =2,
+    INDEX_3 =3,
+    INDEX_4 =4
+};
+
+#define ICON_SENSOR_WIDTH  280
+#define ICON_SENSOR_HEIGHT  60
+#define ICON_SENSOR_XPOS   100
+#define ICON_SENSOR_YPOS   20
+
+#define ICON_DOT_WIDTH  14
+#define ICON_DOT_HEIGHT 14
+#define ICON_DOT_XPOS   184
+#define ICON_DOT_YPOS   290
+#define ICON_DOT_GAP    16
+
+
+#define DIGIT_DOT_XPOS  288
+#define DIGIT_DOT_YPOS  230
+
+#define DIGIT_XPOS    48
+#define DIGIT_YPOS    84
+#define DOT_XPOS_ADJ  24
+
+
+#define DIGIT_WIDTH       96
+#define DIGIT_HEIGHT     192
+
+#define LOGO_XPOS        30
+#define LOGO_YPOS       124
+#define LOGO_WIDTH      420
+#define LOGO_HEIGHT     72
 
 typedef struct
 {
@@ -124,6 +160,9 @@ void LCD_WR_REG(volatile uint16_t regval);
 void LCD_DrawBitmap(uint16_t Xpos, uint16_t Ypos, uint16_t *pBmp);
 void LCD_ShowImage(uint16_t Xpos, uint16_t Ypos, uint16_t width, uint16_t height, uint8_t *pBmp);
 void LCD_MaskImage(uint16_t Xpos, uint16_t Ypos, uint16_t width, uint16_t height, uint16_t color);
+void LCD_ShowSlide(uint8_t index);
+void LCD_ShowDot(void);   
+void LCD_ShowDigtStr(u8 *p, uint8_t dot_flag, uint8_t bit_width);
 
 #endif
 

@@ -1,6 +1,7 @@
 #include "lcd.h"
 #include "stdlib.h"
-#include "lcd_font.h"
+#include "lcd_font.h" 
+#include "slide.h"
 
 
 
@@ -120,7 +121,7 @@ void LCD_Scroll_On(uint8_t mode)
 
         if(mode==LEFT)
         {
-           for(index=0; index<480;index++)
+           for(index=0; index<lcddev.width;index++)
           {
            LCD_WR_REG(0x37);
            LCD_WR_DATA((index>>8)&0xFF);
@@ -130,7 +131,7 @@ void LCD_Scroll_On(uint8_t mode)
         }
         else
         {
-          for(index=480; index>0;index--)
+          for(index=lcddev.width; index>0;index--)
           {
            LCD_WR_REG(0x37);
            LCD_WR_DATA((index>>8)&0xFF);
@@ -564,6 +565,44 @@ void LCD_ShowDigit(u16 x,u16 y,u8 num,u16 size,u8 mode)
 }   
 
 
+void LCD_ShowDigtStr(u8 *p, uint8_t dot_flag, uint8_t bit_width)
+{         
+    uint16_t cur_xpos, cur_ypos;
+    cur_xpos=DIGIT_XPOS;
+    cur_ypos=DIGIT_YPOS;
+
+    switch(bit_width)
+    {
+       case 2:  cur_xpos=DIGIT_XPOS+ DIGIT_WIDTH;
+                 break;
+       case 3:  cur_xpos=DIGIT_WIDTH;
+                 break;
+        default: cur_xpos=DIGIT_XPOS;
+                 break;
+     }
+    
+    if(dot_flag == 1)
+   {
+ 
+          cur_xpos-=DOT_XPOS_ADJ;
+   }
+       
+    while(*p!=NULL)
+    {       
+         if((*p>='0') && (*p<='9'))
+         {
+             LCD_ShowDigit(cur_xpos, cur_ypos, *p, DIGIT_HEIGHT,1);
+         }
+         else if(*p =='.')
+         {
+             LCD_ShowDot();
+             cur_xpos-=DOT_XPOS_ADJ*2;
+         }
+         cur_xpos+=DIGIT_WIDTH;
+         p++;
+    }  
+}
+
 u32 LCD_Pow(u8 m,u8 n)
 {
 	u32 result=1;
@@ -735,7 +774,39 @@ void LCD_MaskImage(uint16_t Xpos, uint16_t Ypos, uint16_t width, uint16_t height
 
 }
 
+void LCD_ShowSlide(uint8_t index)
+{
+    uint8_t* cur_icon;
+    uint16_t cur_xpos;
+    uint8_t k;
+    
+    cur_xpos=ICON_DOT_XPOS;
+    if(index>=0 && index<5)
+    {
+       for(k=0;k<5;k++)
+       {
+           if(index==k)
+          {
+             cur_icon=(uint8_t*)icon_sdot;
+           }
+           else
+          { 
+             cur_icon=(uint8_t*)icon_dot;
+           }
+        
+           LCD_ShowImage(cur_xpos, ICON_DOT_YPOS, 
+                         ICON_DOT_WIDTH, ICON_DOT_HEIGHT, cur_icon);
+           cur_xpos+=ICON_DOT_GAP;
+       }
+    }
+}
 
+void LCD_ShowDot(void)   
+{
+      uint8_t* cur_icon;
+      cur_icon=(uint8_t*)icon_dot;
+      LCD_ShowImage(DIGIT_DOT_XPOS, DIGIT_DOT_YPOS, ICON_DOT_WIDTH, ICON_DOT_HEIGHT, cur_icon);
+}
 
 
 
