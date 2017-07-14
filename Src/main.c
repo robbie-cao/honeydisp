@@ -600,8 +600,6 @@ void Test_SensorAutoDisp(void)
 
 void Test_SensorAutoDisp2(void)
 {
-  uint8_t x=0;
-  uint8_t k=0;
   float curval;
   uint16_t myval;
   uint8_t bit_width;
@@ -621,10 +619,6 @@ void Test_SensorAutoDisp2(void)
   HAL_Delay(100);
 
   while (1) {
-    float h, t;
-    uint16_t co2, voc;
-    char str[32];
-
     if(comm_rcv_flag)
     {
       Comm_Process();
@@ -635,7 +629,6 @@ void Test_SensorAutoDisp2(void)
       continue ;
     }
 
-    memset(str, 0, sizeof(str));
     Get_VocData(&g_co2, &g_voc);
     Get_HumiTemp(&g_humidity, &g_temperature);
     S8_Read(&g_co2);
