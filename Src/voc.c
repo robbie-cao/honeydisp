@@ -56,7 +56,7 @@ void Get_VocData(uint16_t* pDataCO2 ,uint16_t* pDataVOC)
     *pDataVOC = (uint16_t)voc;
   } else {
     /* Render certain error values to display */
-    *pDataCO2 = -1;
-    *pDataVOC = -1;
+    *pDataCO2 = 0;
+    *pDataVOC = 0;
   }
 }

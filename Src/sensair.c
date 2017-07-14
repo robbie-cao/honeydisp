@@ -22,7 +22,7 @@ uint8_t S8_Read(uint16_t *c)
     printf("CO2: %d\r\n", co2);
     *c = co2;
   } else {
-    *c = -1;
+    *c = 0;
     return ERROR;
   }
 
